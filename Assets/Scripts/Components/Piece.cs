@@ -17,7 +17,7 @@ public enum PieceType
 [Serializable]
 public struct Piece : IComponentData
 {
-    public int3 boardPos;
+    //public int3 boardPos;
     public PieceType pieceType;
-    public float centerOffset;
+    public float pivotOffset;
 }

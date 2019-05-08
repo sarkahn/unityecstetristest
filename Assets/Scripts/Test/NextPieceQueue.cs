@@ -47,7 +47,7 @@ public class NextPieceQueue : MonoBehaviour
 
     private void Update()
     {
-        FillQueue();
+        //FillQueue();
     }
 
     public GameObject GetNextPiece()

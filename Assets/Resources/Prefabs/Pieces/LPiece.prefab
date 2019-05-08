@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 4032634218479189281}
   - component: {fileID: 4032634218479189280}
   - component: {fileID: 4032634218479189283}
+  - component: {fileID: -6601334913624895534}
   m_Layer: 0
   m_Name: LPiece
   m_TagString: Untagged
@@ -243,6 +244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pieceType_: 2
+  centerOffset_: 0
 --- !u!114 &4032634218479189283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,6 +255,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e396dee63e00454c8ff08fb37ee8acd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-6601334913624895534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4032634218479189282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 741c447e2cf21d546aebfb34d07e1ead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &4032634218623028431

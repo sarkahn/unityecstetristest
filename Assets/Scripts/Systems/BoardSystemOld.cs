@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [DisableAutoCreation]
-public class BoardSystem : JobComponentSystem
+public class BoardSystemOld : JobComponentSystem
 {
     public NativeArray<bool> board_;
     int2 boardSize = new int2(10, 20);

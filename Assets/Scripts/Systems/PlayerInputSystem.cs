@@ -6,16 +6,13 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateBefore(typeof(InitializeBoardSystem))]
 public class PlayerInputSystem : JobComponentSystem
 {
-    // This declares a new kind of job, which is a unit of work to do.
-    // The job is declared as an IJobForEach<Translation, Rotation>,
-    // meaning it will process all entities in the world that have both
-    // Translation and Rotation components. Change it to process the component
-    // types you want.
-    //
-    // The job is also tagged with the BurstCompile attribute, which means
-    // that the Burst compiler will optimize it for the best performance.
+    public const float repeatDelay_ = .05f;
+
+    float repeatDelayTimer_ = 0;
+
     [BurstCompile]
     struct PlayerInputSystemJob : IJobForEach<PlayerInput>
     {
@@ -37,7 +34,6 @@ public class PlayerInputSystem : JobComponentSystem
     
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-
         int rot = (int)Input.GetAxisRaw("Rotate");
 
         if (rot != 0 && lastRot != 0)
@@ -45,7 +41,25 @@ public class PlayerInputSystem : JobComponentSystem
         else
             lastRot = rot;
 
-        int mov = lastMov != 0 ? 0 : (int)Input.GetAxisRaw("Horizontal");
+        int mov = (int)Input.GetAxisRaw("Horizontal");
+
+        if ( mov == lastMov && lastMov != 0)
+        {
+            //Debug.Log("REPEAT MOVE. DELAY TIMER : " + repeatDelayTimer_) ;
+            if (repeatDelayTimer_ > 0f)
+            {
+                mov = 0;
+            }
+            else
+                repeatDelayTimer_ = repeatDelay_;
+
+            repeatDelayTimer_ -= Time.deltaTime;
+        }
+        else
+        {
+            repeatDelayTimer_ = repeatDelay_;
+            lastMov = mov;
+        }
 
         bool drop = Input.GetButtonDown("Drop");
 
@@ -55,6 +69,7 @@ public class PlayerInputSystem : JobComponentSystem
             movement = mov,
             drop = drop,
         };
+
         
         // Now that the job is set up, schedule it to be run. 
         return job.Schedule(this, inputDependencies);

@@ -8,7 +8,7 @@ using Unity.Transforms;
 [InternalBufferCapacity(4)]
 public struct PieceTiles : IBufferElementData
 {
-    public int2 tile;
-    public static implicit operator int2(PieceTiles data) { return data.tile; }
-    public static implicit operator PieceTiles(int2 tile) { return new PieceTiles { tile = tile }; }
+    public float3 tilePos;
+    public static implicit operator float3(PieceTiles data) { return data.tilePos; }
+    public static implicit operator PieceTiles(float3 tile) { return new PieceTiles { tilePos = tile }; }
 }
