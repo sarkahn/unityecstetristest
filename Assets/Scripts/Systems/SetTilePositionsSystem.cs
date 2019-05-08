@@ -11,6 +11,7 @@ public class SetTilePositionsSystem : JobComponentSystem
 {
     [BurstCompile]
     [RequireComponentTag(typeof(Child))]
+    [ExcludeComponent(typeof(QueuedPiece))]
     struct SetTilePositionsSystemJob : IJobForEachWithEntity<Piece>
     {
         [ReadOnly]

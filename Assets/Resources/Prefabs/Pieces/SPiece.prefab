@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6013116469675088436}
   - component: {fileID: 6013116469675088439}
   - component: {fileID: 6013116469675088438}
-  - component: {fileID: 7331885402463206807}
+  - component: {fileID: 8827680423194957202}
   m_Layer: 0
   m_Name: SPiece
   m_TagString: Untagged
@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e396dee63e00454c8ff08fb37ee8acd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7331885402463206807
+--- !u!114 &8827680423194957202
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -86,7 +86,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6013116469675088433}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 741c447e2cf21d546aebfb34d07e1ead, type: 3}
+  m_Script: {fileID: 11500000, guid: 15c455ad74526744abed10a115dece71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6013116470072307751

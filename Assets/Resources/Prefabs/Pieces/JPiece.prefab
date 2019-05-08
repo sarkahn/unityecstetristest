@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 5343484254109379040}
   - component: {fileID: 5343484254109379043}
   - component: {fileID: 5343484254109379042}
-  - component: {fileID: 8692365447999964470}
+  - component: {fileID: 610654439961620724}
   m_Layer: 0
   m_Name: JPiece
   m_TagString: Untagged
@@ -257,7 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e396dee63e00454c8ff08fb37ee8acd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &8692365447999964470
+--- !u!114 &610654439961620724
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -266,7 +266,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5343484254109379045}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 741c447e2cf21d546aebfb34d07e1ead, type: 3}
+  m_Script: {fileID: 11500000, guid: 15c455ad74526744abed10a115dece71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &5343484254475393704

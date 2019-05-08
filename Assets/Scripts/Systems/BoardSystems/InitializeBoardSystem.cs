@@ -16,7 +16,7 @@ public class InitializeBoardSystem : JobComponentSystem, IBoardSystem
 
     //[BurstCompile]
     //[RequireComponentTag(typeof(UpdateBoardPosition))]
-    [ExcludeComponent(typeof(ActivePiece))]
+    [ExcludeComponent(typeof(ActivePiece), typeof(QueuedPiece))]
     struct BoardSystemJob : IJobForEachWithEntity<Piece, Translation>
     {
         [WriteOnly]

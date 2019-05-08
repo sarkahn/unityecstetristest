@@ -23,8 +23,8 @@ public class NextPieceQueue : MonoBehaviour
     [SerializeField]
     Canvas canvas_;
 
-    [SerializeField]
-    Transform testTransform_;
+    //[SerializeField]
+    //Transform testTransform_;
 
     List<int> shuffleBag_ = new List<int>();
 
@@ -47,7 +47,7 @@ public class NextPieceQueue : MonoBehaviour
 
     private void Update()
     {
-        //FillQueue();
+        FillQueue();
     }
 
     public GameObject GetNextPiece()
@@ -84,7 +84,7 @@ public class NextPieceQueue : MonoBehaviour
         for (int i = 0; i < piecePrefabs_.Count; ++i)
             shuffleBag_.Add(i);
 
-        PrintShuffleBagContents();
+        //PrintShuffleBagContents();
 
         for (int i = shuffleBag_.Count - 1; i > 0; --i)
         {
@@ -94,7 +94,7 @@ public class NextPieceQueue : MonoBehaviour
             shuffleBag_[i] = swap;
         }
 
-        PrintShuffleBagContents();
+        //PrintShuffleBagContents();
     }
 
     void PrintShuffleBagContents()
@@ -115,10 +115,10 @@ public class NextPieceQueue : MonoBehaviour
 
         if( Camera.main != null )
         {
-            var p = testTransform_.position;
+            //var p = testTransform_.position;
             //p = Input.mousePosition;
             //p = Camera.main.ScreenToViewportPoint(p);
-            GUILayout.Label(p.ToString());
+            //GUILayout.Label(p.ToString());
         }
     }
 
