@@ -18,14 +18,15 @@ public class PlayerInputSystem : JobComponentSystem
     {
         public int rotation;
         public int movement;
-        public bool drop;
+        public bool instanceDrop;
+        public bool fastFall;
         
         
         public void Execute(ref PlayerInput input)
         {
             input.rotation = rotation;
             input.movement = movement;
-            input.drop = drop;
+            input.instantDrop = instanceDrop;
         }
     }
 
@@ -62,12 +63,14 @@ public class PlayerInputSystem : JobComponentSystem
         }
 
         bool drop = Input.GetButtonDown("Drop");
+        bool fastFall = Input.GetAxisRaw("Vertical") == -1 ? true : false;
 
         var job = new PlayerInputSystemJob
         {
             rotation = rot,
             movement = mov,
-            drop = drop,
+            instanceDrop = drop,
+            fastFall = fastFall,
         };
 
         

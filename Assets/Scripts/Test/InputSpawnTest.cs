@@ -12,15 +12,15 @@ public class InputSpawnTest : JobComponentSystem
     Random rand;
 
     //[BurstCompile]
-    [RequireComponentTag(typeof(PieceSpawner))]
-    [ExcludeComponent(typeof(SpawnPiece))]
+   // [RequireComponentTag(typeof(PieceSpawner))]
+    //[ExcludeComponent(typeof(SpawnPiece))]
     struct InputSpawnTestJob : IJobForEachWithEntity<PlayerInput>
     {
         // Add fields here that your job needs to do its work.
         // For example,
         //    public float deltaTime;
         [ReadOnly]
-        public EntityCommandBuffer buffer;
+        public EntityCommandBuffer.Concurrent buffer;
 
         public float3 mousePos;
         public int randInt;
@@ -28,16 +28,17 @@ public class InputSpawnTest : JobComponentSystem
 
         public void Execute(Entity entity, int index, ref PlayerInput input )
         {
-            if( input.drop )
+            if( input.instantDrop )
             {
-                buffer.AddComponent(entity, new SpawnPiece { pieceType = randInt });
+                //buffer.AddComponent(entity, new SpawnPiece { pieceType = randInt });
+                //buffer.AddComponent<GetNextPiece>(index, entity, new GetNextPiece());
             }
 
             if( mouseClicked )
             {
-                var spawnEntity = buffer.CreateEntity();
-                buffer.AddComponent(spawnEntity, new SpawnPiece { pieceType = randInt });
-                buffer.AddComponent(spawnEntity, new Translation { Value = mousePos });
+                //var spawnEntity = buffer.CreateEntity();
+                //buffer.AddComponent(spawnEntity, new SpawnPiece { pieceType = randInt });
+                //buffer.AddComponent(spawnEntity, new Translation { Value = mousePos });
             }
         }
     }
@@ -61,7 +62,7 @@ public class InputSpawnTest : JobComponentSystem
 
         var job = new InputSpawnTestJob
         {
-            buffer = initBufferSystem_.CreateCommandBuffer(),
+            buffer = initBufferSystem_.CreateCommandBuffer().ToConcurrent(),
             randInt = rand.NextInt(6),
             mousePos = new float3(mousePos),
             mouseClicked = mouseClicked,

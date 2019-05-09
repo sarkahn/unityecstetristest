@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
 using System.Linq;
+using Unity.Entities;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,9 +14,14 @@ public class NextPieceQueue : MonoBehaviour
 {
     [SerializeField]
     List<GameObject> piecePrefabs_;
+    public IReadOnlyList<GameObject> PiecePrefabs_ { get { return piecePrefabs_.AsReadOnly(); } }
 
     [SerializeField]
-    public List<Transform> queuePositions_;
+    List<Transform> queuePositions_;
+    public IReadOnlyList<Transform> QueuePositions_ { get { return queuePositions_.AsReadOnly(); } }
+
+    [SerializeField]
+    Transform activePieceSpawnPoint_;
 
     [SerializeField]
     int queueSize_ = 6;
@@ -30,8 +36,14 @@ public class NextPieceQueue : MonoBehaviour
 
     Queue<GameObject> pieceQueue_ = new Queue<GameObject>();
 
+    private void Awake()
+    {
+        Debug.Log("AWAKE");
+    }
+
     private void OnEnable()
     {
+        Debug.Log("ONENABLE");
     }
 
     [ContextMenu("PrintPositions")]
@@ -47,14 +59,20 @@ public class NextPieceQueue : MonoBehaviour
 
     private void Update()
     {
+        if( Input.GetButtonDown("Drop") )
+        {
+            var nextPiece = pieceQueue_.Dequeue();
+            nextPiece.transform.SetParent(null);
+            nextPiece.transform.localScale = Vector3.one;
+            nextPiece.transform.position = activePieceSpawnPoint_.position;
+            nextPiece.AddComponent<ActivePieceProxy>();
+            nextPiece.AddComponent<ConvertToEntity>();
+        }
+
         FillQueue();
     }
 
-    public GameObject GetNextPiece()
-    {
-        var piece = pieceQueue_.Dequeue();
-        return piece;
-    }
+
 
     [ContextMenu("FillQueue")]
     void FillQueue()
@@ -62,9 +80,14 @@ public class NextPieceQueue : MonoBehaviour
         while(pieceQueue_.Count < queueSize_)
         {
             var prefab = piecePrefabs_[PullFromShuffleBag()];
-            var newPiece = Instantiate(prefab, queuePositions_[pieceQueue_.Count], false);
+            var newPiece = Instantiate(prefab, transform, false);
             pieceQueue_.Enqueue(newPiece);
         }
+
+        int i = 0;
+        foreach (var piece in pieceQueue_)
+            piece.transform.position = queuePositions_[i++].position;
+
     }
 
 
@@ -103,24 +126,24 @@ public class NextPieceQueue : MonoBehaviour
         Debug.LogFormat("Contents of shuffle bag: {0}", contents);
     }
 
-    private void OnGUI()
-    {
-        if( queuePositions_ != null )
-        {
-            foreach (var t in queuePositions_)
-            {
-                GUILayout.Label(t.position.ToString());
-            }
-        }
+    //private void OnGUI()
+    //{
+    //    if( queuePositions_ != null )
+    //    {
+    //        foreach (var t in queuePositions_)
+    //        {
+    //            GUILayout.Label(t.position.ToString());
+    //        }
+    //    }
 
-        if( Camera.main != null )
-        {
-            //var p = testTransform_.position;
-            //p = Input.mousePosition;
-            //p = Camera.main.ScreenToViewportPoint(p);
-            //GUILayout.Label(p.ToString());
-        }
-    }
+    //    if( Camera.main != null )
+    //    {
+    //        //var p = testTransform_.position;
+    //        //p = Input.mousePosition;
+    //        //p = Camera.main.ScreenToViewportPoint(p);
+    //        //GUILayout.Label(p.ToString());
+    //    }
+    //}
 
 #if UNITY_EDITOR
     private void OnValidate()

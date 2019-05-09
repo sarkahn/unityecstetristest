@@ -12,11 +12,16 @@ public class PieceQueueDataProxy : MonoBehaviour, IConvertGameObjectToEntity
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        dstManager.AddComponent(entity, typeof(PieceQueue));
+        var buffer = dstManager.AddBuffer<QueueSpawnPosition>(entity);
+        for (int i = 0; i < transform.childCount; ++i)
+            buffer.Add((float3)transform.GetChild(i).position);
+
         //conversionSystem.SetSingleton(new PieceQueueData { scaling = scaling_ });
 
-        List<int3> positions = new List<int3>();
-        foreach (var t in piecePositions_)
-            positions.Add(new int3(t.position));
+        //List<int3> positions = new List<int3>();
+        //foreach (var t in piecePositions_)
+        //    positions.Add(new int3(t.position));
 
         //dstManager.AddSharedComponentData(entity, new PieceQueueData { positions = positions, scaling = scaling_ });
 

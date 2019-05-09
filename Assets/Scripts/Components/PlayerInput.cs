@@ -9,5 +9,5 @@ public struct PlayerInput : IComponentData
 {
     public int rotation;
     public int movement;
-    public bool drop;
+    public bool instantDrop;
 }

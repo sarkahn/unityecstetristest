@@ -4,13 +4,21 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 
 [UpdateAfter(typeof(PieceRotationSystem))]
 public class PieceMovementSystem : JobComponentSystem, IBoardSystem
 {
     const float defaultFallDelay_ = 1f;
+    public float normalFallDelay_ = defaultFallDelay_;
+    public const float fastFallDelay_ = .065f;
+
+    float currentFallDelay_ = defaultFallDelay_;
+
     float timer_ = defaultFallDelay_;
+    bool isFastFalling_ = false;
+
 
     IBoardSystem rotationSystem_;
     BeginInitializationEntityCommandBufferSystem initBufferSystem_;
@@ -99,6 +107,22 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
     
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
+        bool fastFall = Input.GetAxisRaw("Vertical") == -1;
+
+        if( fastFall && fastFallDelay_ < normalFallDelay_ &&  !isFastFalling_)
+        {
+            timer_ = math.remap(0, normalFallDelay_, 0, fastFallDelay_, timer_);
+            currentFallDelay_ = fastFallDelay_;
+            isFastFalling_ = true;
+        }
+        
+        if( !fastFall && isFastFalling_ )
+        {
+            timer_ = math.remap(0, fastFallDelay_, 0, normalFallDelay_, timer_);
+            currentFallDelay_ = normalFallDelay_;
+            isFastFalling_ = false;
+        }
+
         timer_ -= UnityEngine.Time.deltaTime;
 
         var boardJobs = GetBoardJobs();
@@ -119,7 +143,7 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
         job = JobHandle.CombineDependencies(boardJobs);
 
         if (timer_ <= 0)
-            timer_ = defaultFallDelay_;
+            timer_ = currentFallDelay_;
         
         return job;
     }

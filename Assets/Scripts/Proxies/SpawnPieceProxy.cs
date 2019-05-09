@@ -7,7 +7,6 @@ using UnityEngine;
 [RequiresEntityConversion]
 public class SpawnPieceProxy : MonoBehaviour, IConvertGameObjectToEntity
 {
-
     public enum PieceType
     {
         IPiece = 0,
