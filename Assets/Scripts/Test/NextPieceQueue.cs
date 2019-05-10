@@ -36,15 +36,6 @@ public class NextPieceQueue : MonoBehaviour
 
     Queue<GameObject> pieceQueue_ = new Queue<GameObject>();
 
-    private void Awake()
-    {
-        Debug.Log("AWAKE");
-    }
-
-    private void OnEnable()
-    {
-        Debug.Log("ONENABLE");
-    }
 
     [ContextMenu("PrintPositions")]
     void PrintPositions()

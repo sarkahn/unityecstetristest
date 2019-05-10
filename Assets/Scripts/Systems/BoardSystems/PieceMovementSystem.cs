@@ -49,13 +49,15 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
             for( int i = 0; i < tilesBuffer.Length; ++i )
             {
                 float3 tilePos = tilesBuffer[i].tilePos;
-                int3 cell = (int3)math.floor(tilePos + piecePos + piece.pivotOffset);
+                float3 worldPos = tilePos + piecePos - .5f;
+                int3 cell = BoardUtility.ToCellPos(tilePos, piecePos);
 
+                //UnityEngine.Debug.LogFormat("{0}: PiecePos {1}, TilePos {2}, TileWorldPos {3}, Cell {4}", i, piecePos, tilePos, worldPos, cell);
                 //UnityEngine.Debug.Log("TILEPOS: " + (cell + vel));
 
                 // Horizontal check
                 int3 horDest = cell + new int3(vel.x, 0, 0);
-                if (!IsValidPosition(horDest))
+                if (!BoardUtility.IsValidPosition(horDest, boardSize, ref board))
                 {
                     vel.x = 0;
                     break;
@@ -65,11 +67,11 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
             for( int i = 0; i < tilesBuffer.Length; ++i )
             {
                 float3 tilePos = tilesBuffer[i].tilePos;
-                int3 cell = (int3)math.floor(tilePos + piecePos + piece.pivotOffset);
+                int3 cell = BoardUtility.ToCellPos(tilePos, piecePos);
 
                 // Vertical check
                 int3 verDest = cell + new int3(0, vel.y, 0);
-                if (!IsValidPosition(verDest))
+                if (!BoardUtility.IsValidPosition(verDest, boardSize, ref board))
                 {
                     RemoveActive(index, entity);
                     vel.y = 0;
@@ -84,19 +86,6 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
             }
         }
 
-        // TODO : Move out to it's own class - used by Movement and Rotation systems
-        bool IsValidPosition(int3 cell)
-        {
-            int idx = cell.y * boardSize.x + cell.x;
-
-            bool inBounds = 
-                cell.x >= 0 && cell.x < boardSize.x &&
-                cell.y >= 0 && cell.y < boardSize.y;
-
-            if (!inBounds || board[idx])
-                return false;
-            return true;
-        }
         
         void RemoveActive( int jobIndex, Entity e)
         {
@@ -141,6 +130,8 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
         initBufferSystem_.AddJobHandleForProducer(job);
 
         job = JobHandle.CombineDependencies(boardJobs);
+
+        boardJobs.Clear();
 
         if (timer_ <= 0)
             timer_ = currentFallDelay_;

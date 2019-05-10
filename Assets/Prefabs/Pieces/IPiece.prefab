@@ -320,7 +320,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pieceType_: 0
-  centerOffset_: 0.5
+  snapOffset_:
+    x: 0.5
+    y: 0.5
 --- !u!114 &949605328662048796
 MonoBehaviour:
   m_ObjectHideFlags: 0

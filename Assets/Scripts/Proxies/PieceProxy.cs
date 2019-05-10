@@ -11,11 +11,11 @@ using UnityEngine;
 public class PieceProxy : MonoBehaviour, IConvertGameObjectToEntity
 {
     public PieceType pieceType_;
-    public float centerOffset_;
+    public float2 snapOffset_;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new Piece { pieceType = pieceType_, pivotOffset = centerOffset_ });
+        dstManager.AddComponentData(entity, new Piece { pieceType = pieceType_, snapOffset = snapOffset_ });
         
 
         var buffer = dstManager.AddBuffer<PieceTiles>(entity);

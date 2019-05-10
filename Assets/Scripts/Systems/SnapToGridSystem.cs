@@ -18,7 +18,8 @@ public class SnapToGridSystem : JobComponentSystem
 
         public void Execute(Entity entity, int index, ref Translation translation, [ReadOnly] ref Piece piece)
         {
-            translation.Value = math.ceil(translation.Value) + (.5f - piece.pivotOffset);
+            float3 snapOffset = new float3(.5f + piece.snapOffset, 0);
+            translation.Value = math.floor(translation.Value) + snapOffset;
             commandBuffer.RemoveComponent(index, entity, typeof(SnapToGrid));
         }
     }

@@ -19,5 +19,5 @@ public struct Piece : IComponentData
 {
     //public int3 boardPos;
     public PieceType pieceType;
-    public float pivotOffset;
+    public float2 snapOffset;
 }

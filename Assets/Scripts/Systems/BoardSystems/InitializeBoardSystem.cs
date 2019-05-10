@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
+[UpdateBefore(typeof(PieceRotationSystem))]
 public class InitializeBoardSystem : JobComponentSystem, IBoardSystem
 {
     EntityQuery boardQuery_;
@@ -30,20 +31,22 @@ public class InitializeBoardSystem : JobComponentSystem, IBoardSystem
 
         public void Execute(Entity entity, int index, ref Piece piece, [ReadOnly] ref Translation translation)
         {
-            var boardPos = (int3)floor(translation.Value);
+            var piecePos = translation.Value;
 
             var tiles = tilesLookup[entity];
             //UnityEngine.Debug.Log("Piece " + piece.pieceType + " tile positions at " + boardPos);
             for (int i = 0; i < tiles.Length; ++i)
             {
-                float3 localTilePos = tiles[i];
-                localTilePos -= piece.pivotOffset;
-                int3 tilePos = (int3)math.floor(localTilePos) + boardPos;
-                int idx = tilePos.y * boardSizeX + tilePos.x;
+                float3 tilePos = tiles[i];
+                //localTilePos -= piece.snapOffset;
+                int3 cellPos = BoardUtility.ToCellPos(tilePos, piecePos);
+
+                //UnityEngine.Debug.Log("CellPos: " + cellPos);
+
+                int idx = cellPos.y * boardSizeX + cellPos.x;
                 
                 if( idx >= 0 && idx < board.Length )
                     board[idx] = true;
-                //UnityEngine.Debug.Log("TilePos " + tilePos + ", Idx: " + idx);
             }
         }
     }
@@ -70,7 +73,7 @@ public class InitializeBoardSystem : JobComponentSystem, IBoardSystem
         {
             board = board_,
             tilesLookup = GetBufferFromEntity<PieceTiles>(true),
-            boardSizeX = 10
+            boardSizeX = boardSize_.x
         }.Schedule(this, inputDependencies);
 
         boardJobs_.Add(job);

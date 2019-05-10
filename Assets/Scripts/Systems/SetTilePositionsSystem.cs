@@ -10,7 +10,7 @@ using UnityEngine.Jobs;
 public class SetTilePositionsSystem : JobComponentSystem
 {
     [BurstCompile]
-    [RequireComponentTag(typeof(Child))]
+    [RequireComponentTag(typeof(Child), typeof(PieceTiles))]
     [ExcludeComponent(typeof(QueuedPiece))]
     struct SetTilePositionsSystemJob : IJobForEachWithEntity<Piece>
     {
@@ -30,7 +30,6 @@ public class SetTilePositionsSystem : JobComponentSystem
             {
                 var child = childBuffer[i].Value;
                 translationLookup[child] = new Translation { Value = tilesBuffer[i] };
-
             }
         }
         

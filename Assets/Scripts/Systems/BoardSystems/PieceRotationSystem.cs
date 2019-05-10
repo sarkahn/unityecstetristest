@@ -44,51 +44,34 @@ public class PieceRotationSystem : JobComponentSystem, IBoardSystem
             if( input.rotation != 0 )
             {
                 float3 piecePos = translation.Value;
-                //UnityEngine.Debug.Log("Positions for entity " + entity);
-                //var childBuffer = childLookup[entity];
                 var tilesBuffer = tilesLookup[entity];
 
                 quaternion rotation = quaternion.RotateZ(math.radians(90f * input.rotation));
-
-                // Test rotatations
+                
                 for ( int i = 0; i < tilesBuffer.Length; ++i )
                 {
                     float3 tilePos = tilesBuffer[i];
                     float3 rotatedPos = math.rotate(rotation, tilePos);
-                    int3 rotatedBoardPos = (int3)math.floor(rotatedPos + piecePos + piece.pivotOffset);
+                    rotatedPos = RoundedStep(rotatedPos, .5f);
 
-                    if (!IsValidPosition(rotatedBoardPos))
+                    int3 newCellPos = BoardUtility.ToCellPos(rotatedPos, piecePos);
+
+                    if (!BoardUtility.IsValidPosition(newCellPos, boardSize, ref board))
                         return;
 
                     posBuffer[i] = RoundedStep(rotatedPos, .5f);
-                    //UnityEngine.Debug.LogFormat("Setting posBuffer {0} to {1}. Pre rotated: {2}", i, posBuffer[i], pos);
                 }
                 
-
+                // If our rotated positions are valid we can assign them back
+                // to our tiles buffer, which will be used in the movement system
                 for( int i = 0; i < tilesBuffer.Length; ++i )
                 {
                     tilesBuffer[i] = posBuffer[i];
                 }
-                
-                //int angle = 90 * input.rotation;
-                //var newRot = math.mul(math.normalize(rot.Value), rotation);
-                //commandBuffer.SetComponent(entity, new Rotation() { Value = newRot });
             }
         }
 
-        bool IsValidPosition(int3 cell)
-        {
-            int idx = cell.y * boardSize.x + cell.x;
-
-            bool inBounds =
-                cell.x >= 0 && cell.x < boardSize.x &&
-                cell.y >= 0 && cell.y < boardSize.y;
-
-            if (!inBounds || board[idx])
-                return false;
-            return true;
-        }
-
+        // Round each component to the nearest given step
         float3 RoundedStep(float3 val, float step)
         {
             step = math.max(step, 0.01f);
