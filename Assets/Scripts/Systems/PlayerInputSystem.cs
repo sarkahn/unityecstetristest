@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateBefore(typeof(InitializeBoardSystem))]
+[UpdateBefore(typeof(GameLoopSystem))]
 public class PlayerInputSystem : JobComponentSystem
 {
     public const float repeatDelay_ = .05f;
@@ -44,7 +44,7 @@ public class PlayerInputSystem : JobComponentSystem
 
         int mov = (int)Input.GetAxisRaw("Horizontal");
 
-        if ( mov == lastMov && lastMov != 0)
+        if (mov == lastMov && lastMov != 0)
         {
             //Debug.Log("REPEAT MOVE. DELAY TIMER : " + repeatDelayTimer_) ;
             if (repeatDelayTimer_ > 0f)

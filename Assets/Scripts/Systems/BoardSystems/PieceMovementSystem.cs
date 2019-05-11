@@ -7,9 +7,10 @@ using Unity.Transforms;
 using UnityEngine;
 
 
+[DisableAutoCreation]
 [UpdateAfter(typeof(PieceRotationSystem))]
-public class PieceMovementSystem : JobComponentSystem, IBoardSystem
-{
+public class PieceMovementSystem : JobComponentSystem
+{ 
     const float defaultFallDelay_ = 1f;
     public float normalFallDelay_ = defaultFallDelay_;
     public const float fastFallDelay_ = .065f;
@@ -19,8 +20,7 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
     float timer_ = defaultFallDelay_;
     bool isFastFalling_ = false;
 
-
-    IBoardSystem rotationSystem_;
+    
     BeginInitializationEntityCommandBufferSystem initBufferSystem_;
 
 
@@ -29,7 +29,7 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
     struct Job : IJobForEachWithEntity<PlayerInput, Translation, Piece>
     {
         [ReadOnly]
-        public NativeArray<bool> board;
+        public NativeArray<BoardCell> board;
         [ReadOnly]
         public BufferFromEntity<PieceTiles> tilesLookup;
         [ReadOnly]
@@ -37,7 +37,10 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
         public int2 boardSize;
         public float gravityTimer;
         
-        public void Execute(Entity entity, int index, [ReadOnly] ref PlayerInput input, ref Translation translation, [ReadOnly] ref Piece piece)
+        public void Execute(Entity entity, int index, 
+            [ReadOnly] ref PlayerInput input, 
+            ref Translation translation, 
+            [ReadOnly] ref Piece piece)
         {
             var piecePos = translation.Value;
             var tilesBuffer = tilesLookup[entity];
@@ -52,12 +55,13 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
                 float3 worldPos = tilePos + piecePos - .5f;
                 int3 cell = BoardUtility.ToCellPos(tilePos, piecePos);
 
-                //UnityEngine.Debug.LogFormat("{0}: PiecePos {1}, TilePos {2}, TileWorldPos {3}, Cell {4}", i, piecePos, tilePos, worldPos, cell);
+                //UnityEngine.Debug.LogFormat("{0}: PiecePos {1}, TilePos {2}, TileWorldPos {3}, Cell {4}", 
+                //  i, piecePos, tilePos, worldPos, cell);
                 //UnityEngine.Debug.Log("TILEPOS: " + (cell + vel));
 
                 // Horizontal check
                 int3 horDest = cell + new int3(vel.x, 0, 0);
-                if (!BoardUtility.IsValidPosition(horDest, boardSize, ref board))
+                //if (!BoardUtility.IsValidPosition(horDest, ref boardBuffer))
                 {
                     vel.x = 0;
                     break;
@@ -71,7 +75,7 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
 
                 // Vertical check
                 int3 verDest = cell + new int3(0, vel.y, 0);
-                if (!BoardUtility.IsValidPosition(verDest, boardSize, ref board))
+                //if (!BoardUtility.IsValidPosition(verDest, ref boardBuffer))
                 {
                     RemoveActive(index, entity);
                     vel.y = 0;
@@ -114,24 +118,19 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
 
         timer_ -= UnityEngine.Time.deltaTime;
 
-        var boardJobs = GetBoardJobs();
 
         var job = new Job
         {
-            board = GetBoard(),
+            board = new NativeArray<BoardCell>(0, Allocator.Persistent),
             tilesLookup = GetBufferFromEntity<PieceTiles>(true),
-            boardSize = GetBoardSize(),
+            boardSize = new int2(),
             commandBuffer = initBufferSystem_.CreateCommandBuffer().ToConcurrent(),
             gravityTimer = timer_,
         }.Schedule(this, inputDependencies);
-
-        boardJobs.Add(job);
+        
 
         initBufferSystem_.AddJobHandleForProducer(job);
-
-        job = JobHandle.CombineDependencies(boardJobs);
-
-        boardJobs.Clear();
+        
 
         if (timer_ <= 0)
             timer_ = currentFallDelay_;
@@ -141,22 +140,8 @@ public class PieceMovementSystem : JobComponentSystem, IBoardSystem
 
     protected override void OnCreate()
     {
-        rotationSystem_ = World.GetOrCreateSystem<PieceRotationSystem>() as IBoardSystem;
-        initBufferSystem_ = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        //rotationSystem_ = World.GetOrCreateSystem<PieceRotationSystem>() as IBoardSystem;
+        //initBufferSystem_ = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
     }
-
-    public NativeArray<bool> GetBoard()
-    {
-        return rotationSystem_.GetBoard();
-    }
-
-    public NativeList<JobHandle> GetBoardJobs()
-    {
-        return rotationSystem_.GetBoardJobs();
-    }
-
-    public int2 GetBoardSize()
-    {
-        return rotationSystem_.GetBoardSize();
-    }
+    
 }

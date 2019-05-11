@@ -1,10 +1,9 @@
-﻿
-using System;
+﻿using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct BoardInitialized : IComponentData
+public struct ActiveTile : IComponentData
 {
 }

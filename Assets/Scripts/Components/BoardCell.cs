@@ -7,7 +7,7 @@ using Unity.Mathematics;
 [InternalBufferCapacity(10*20)]
 public struct BoardCell : IBufferElementData
 {
-    public bool occupied;
-    public static implicit operator bool(BoardCell data) { return data.occupied; }
-    public static implicit operator BoardCell(bool val) { return new BoardCell { occupied = val }; }
+    public Entity entity;
+    public static implicit operator Entity(BoardCell data) { return data.entity; }
+    public static implicit operator BoardCell(Entity val) { return new BoardCell { entity = val }; }
 }

@@ -4,28 +4,37 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using static Unity.Mathematics.math;
 
-[UpdateBefore(typeof(InitializeBoardSystem))]
-public class InitialPiecePositionsSystem : JobComponentSystem
+[DisableAutoCreation]
+[UpdateAfter(typeof(PieceMovementSystem))]
+public class LineClearSystem : JobComponentSystem
 {
+
     [BurstCompile]
-    [RequireComponentTag(typeof(PieceTiles))]
-    struct InitialPositionSystemJob : IJobForEachWithEntity<Piece>
+    struct LineClearSystemJob : IJobForEach<Translation, Rotation>
     {
 
-        public void Execute(Entity entity, int index, ref Piece piece)
+        public void Execute(ref Translation translation, [ReadOnly] ref Rotation rotation)
         {
+            
         }
     }
-    
+
+    protected override void OnCreate()
+    {
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        var job = new InitialPositionSystemJob
+        var job = new LineClearSystemJob
         {
+
         }.Schedule(this, inputDependencies);
         
 
         // Now that the job is set up, schedule it to be run. 
         return job;
     }
+
 }
