@@ -19,7 +19,7 @@ struct InitializeBoardJob : IJobForEachWithEntity<Piece, Translation>
     [ReadOnly]
     public BufferFromEntity<Child> childLookup;
 
-    public void Execute(Entity entity, int index, ref Piece piece, ref Translation translation)
+    public void Execute(Entity entity, int index, [ReadOnly] ref Piece piece, [ReadOnly] ref Translation translation)
     {
         float3 piecePos = translation.Value;
         var tilesBuffer = tilesLookup[entity];

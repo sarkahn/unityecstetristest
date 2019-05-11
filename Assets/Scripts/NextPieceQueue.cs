@@ -14,11 +14,9 @@ public class NextPieceQueue : MonoBehaviour
 {
     [SerializeField]
     List<GameObject> piecePrefabs_;
-    public IReadOnlyList<GameObject> PiecePrefabs_ { get { return piecePrefabs_.AsReadOnly(); } }
 
     [SerializeField]
     List<Transform> queuePositions_;
-    public IReadOnlyList<Transform> QueuePositions_ { get { return queuePositions_.AsReadOnly(); } }
 
     [SerializeField]
     Transform activePieceSpawnPoint_;
@@ -28,10 +26,7 @@ public class NextPieceQueue : MonoBehaviour
 
     [SerializeField]
     Canvas canvas_;
-
-    //[SerializeField]
-    //Transform testTransform_;
-
+    
     List<int> shuffleBag_ = new List<int>();
 
     Queue<GameObject> pieceQueue_ = new Queue<GameObject>();
@@ -50,20 +45,18 @@ public class NextPieceQueue : MonoBehaviour
 
     private void Update()
     {
-        if( Input.GetButtonDown("Drop") )
-        {
-            var nextPiece = pieceQueue_.Dequeue();
-            nextPiece.transform.SetParent(null);
-            nextPiece.transform.localScale = Vector3.one;
-            nextPiece.transform.position = activePieceSpawnPoint_.position;
-            nextPiece.AddComponent<ActivePieceProxy>();
-            nextPiece.AddComponent<ConvertToEntity>();
-        }
-
         FillQueue();
     }
 
+    public GameObject GetNextPiece()
+    {
+        var nextPiece = pieceQueue_.Dequeue();
+        nextPiece.transform.SetParent(null);
+        nextPiece.transform.localScale = Vector3.one;
+        nextPiece.transform.position = activePieceSpawnPoint_.position;
 
+        return nextPiece;
+    }
 
     [ContextMenu("FillQueue")]
     void FillQueue()
@@ -80,8 +73,7 @@ public class NextPieceQueue : MonoBehaviour
             piece.transform.position = queuePositions_[i++].position;
 
     }
-
-
+    
     int PullFromShuffleBag()
     {
         if (shuffleBag_.Count == 0)
@@ -98,8 +90,6 @@ public class NextPieceQueue : MonoBehaviour
         for (int i = 0; i < piecePrefabs_.Count; ++i)
             shuffleBag_.Add(i);
 
-        //PrintShuffleBagContents();
-
         for (int i = shuffleBag_.Count - 1; i > 0; --i)
         {
             int j = UnityEngine.Random.Range(0, i);
@@ -107,34 +97,8 @@ public class NextPieceQueue : MonoBehaviour
             shuffleBag_[j] = shuffleBag_[i];
             shuffleBag_[i] = swap;
         }
-
-        //PrintShuffleBagContents();
     }
 
-    void PrintShuffleBagContents()
-    {
-        var contents = string.Join(", ", shuffleBag_.Select(i => i.ToString()));
-        Debug.LogFormat("Contents of shuffle bag: {0}", contents);
-    }
-
-    //private void OnGUI()
-    //{
-    //    if( queuePositions_ != null )
-    //    {
-    //        foreach (var t in queuePositions_)
-    //        {
-    //            GUILayout.Label(t.position.ToString());
-    //        }
-    //    }
-
-    //    if( Camera.main != null )
-    //    {
-    //        //var p = testTransform_.position;
-    //        //p = Input.mousePosition;
-    //        //p = Camera.main.ScreenToViewportPoint(p);
-    //        //GUILayout.Label(p.ToString());
-    //    }
-    //}
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -144,8 +108,6 @@ public class NextPieceQueue : MonoBehaviour
 
         if( Application.isPlaying )
         {
-            //FillQueue();
-
             while (pieceQueue_.Count > queueSize_ && queueSize_ > 0)
             {
                 var piece = pieceQueue_.Dequeue();

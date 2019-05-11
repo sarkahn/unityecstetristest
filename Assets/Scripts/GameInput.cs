@@ -20,6 +20,10 @@ public static class InputHandling
     static float timer_ = defaultFallDelay_;
     static bool isFastFalling_ = false;
 
+    public static void ResetDropTimer()
+    {
+        timer_ = currentFallDelay_;
+    }
 
     public static int GetRotationInput()
     {
@@ -81,5 +85,10 @@ public static class InputHandling
         }
 
         return mov;
+    }
+
+    public static bool InstantDrop()
+    {
+        return Input.GetButtonDown("Drop");
     }
 }

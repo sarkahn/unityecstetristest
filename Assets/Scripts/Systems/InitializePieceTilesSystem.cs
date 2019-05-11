@@ -7,7 +7,7 @@ using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateBefore(typeof(GameLoopSystem))]
+[UpdateBefore(typeof(BoardSystem))]
 public class InitializePieceTilesSystem : JobComponentSystem
 {
     [BurstCompile]

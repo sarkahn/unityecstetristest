@@ -10,6 +10,6 @@ public class ActivePieceProxy : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new ActivePiece());
-       
+        dstManager.AddComponentData(entity, new ActivePieceState());
     }
 }

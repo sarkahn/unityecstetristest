@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public static class BoardUtility
 {
@@ -42,5 +43,13 @@ public static class BoardUtility
         step = math.max(step, 0.01f);
         val = math.round(val / step) * step;
         return val;
+    }
+
+    public static void GameOver()
+    {
+        World.DisposeAllWorlds();
+        Time.timeScale = 0;
+        SceneManager.LoadScene("GameOverScene", LoadSceneMode.Additive);
+        
     }
 }

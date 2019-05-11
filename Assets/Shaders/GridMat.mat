@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GridMat
+  m_Shader: {fileID: 4800000, guid: f4927dc1576299c4aadb1118a2d57853, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: e3265ab4bf004d28a9537516768c1c75, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _Alpha: 1
+    - _Aspect: 0.5
+    - _Grid2Size: 2.59
+    - _Grid3Size: 8.51
+    - _GridSize: 9.4
+    - _GridSpacing: 0.86
+    - _GridThickness: 0.09
+    - _LineSize: 0.09
+    - _OffsetX: 0.017
+    - _OffsetY: 0.009
+    - _Outline: 0.023
+    - _SelectCell: 0
+    - _SelectedCellX: 0
+    - _SelectedCellY: 0
+    m_Colors:
+    - _BaseColour: {r: 0, g: 0, b: 0, a: 0}
+    - _CellColor: {r: 0, g: 0, b: 0, a: 0}
+    - _GridColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GridColour: {r: 1, g: 0, b: 0, a: 0.5}
+    - _LineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _PixelsPerTile: {r: 16, g: 8, b: 0, a: 0}
+    - _SelectedColor: {r: 1, g: 0, b: 0, a: 1}

@@ -34,10 +34,15 @@ struct PieceRotationJob : IJobForEachWithEntity<Translation>
             float3 rotatedPos = math.rotate(rotation, tilePos);
             rotatedPos = BoardUtility.RoundedStep(rotatedPos, .5f);
 
-            int3 newCellPos = BoardUtility.ToCellPos(rotatedPos, piecePos);
-            int idx = BoardUtility.IndexFromCellPos(newCellPos);
+            int3 cell = BoardUtility.ToCellPos(rotatedPos, piecePos);
+            int idx = BoardUtility.IndexFromCellPos(cell);
 
-            if (!BoardUtility.InBounds(newCellPos) || board[idx] != Entity.Null)
+            // Special case for rotation - we want to be able to rotate even it would 
+            // cause tiles to go "Above" the board
+            bool inBounds = cell.x >= 0 && cell.x < BoardUtility.BoardSize.x &&
+            cell.y >= 0 && cell.y < BoardUtility.BoardSize.y + 5;
+
+            if (!inBounds || board[idx] != Entity.Null)
             {
                 //Debug.Log("Unable to rotate");
                 //Debug.LogFormat("TilePos {0}, Rotated {1}, CellPos {2}, Index {3}", tilePos, rotatedPos, newCellPos, idx);

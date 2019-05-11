@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.Jobs;
 
-[UpdateAfter(typeof(GameLoopSystem))]
+[UpdateAfter(typeof(BoardSystem))]
 public class SetTilePositionsSystem : JobComponentSystem
 {
     [BurstCompile]
