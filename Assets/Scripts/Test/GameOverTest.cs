@@ -15,7 +15,7 @@ public class GameOverTest : MonoBehaviour
     {
         if( Input.GetButtonDown("Jump") )
         {
-            //BoardUtility.GameOver();
+            BoardUtility.GameOver();
         }
     }
 }

@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateBefore(typeof(InitializePieceTilesSystem))]
+[UpdateBefore(typeof(BoardSystem))]
 public class SnapToGridSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem initBufferSystem_;

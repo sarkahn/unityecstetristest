@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Transforms;
 using Unity.Mathematics;
+using System.Collections;
 
 [UpdateAfter(typeof(BoardSystem))]
 public class GetNextPieceSystem : ComponentSystem
@@ -52,13 +53,13 @@ public class GetNextPieceSystem : ComponentSystem
                 }
 
                 PostUpdateCommands.RemoveComponent<ActivePieceState>(e);
+                
                 nextPiece = pieceQueue_.GetNextPiece();
             });
 
-        if( gameOver )
+        if( Input.GetButtonDown("Jump"))
         {
-            BoardUtility.GameOver();
-            return;
+            pieceQueue_.StartCoroutine(GameOverRoutine());
         }
 
         if( nextPiece != null )
@@ -68,4 +69,12 @@ public class GetNextPieceSystem : ComponentSystem
             nextPiece.AddComponent<ConvertToEntity>();
         }
     }
+
+    IEnumerator GameOverRoutine()
+    {
+        yield return null;
+        BoardUtility.GameOver();
+    }
 }
+
+

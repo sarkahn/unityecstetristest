@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[BurstCompile]
+//[BurstCompile]
 [RequireComponentTag(typeof(PieceTiles), typeof(Child))]
 [ExcludeComponent(typeof(ActivePiece))]
 struct InitializeBoardJob : IJobForEachWithEntity<Piece, Translation>
