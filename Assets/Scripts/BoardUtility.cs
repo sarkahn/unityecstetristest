@@ -47,7 +47,9 @@ public static class BoardUtility
 
     public static void GameOver()
     {
-        World.DisposeAllWorlds();
+        foreach (var system in World.Active.Systems)
+            system.Enabled = false;
+
         Time.timeScale = 0;
         SceneManager.LoadScene("GameOverScene", LoadSceneMode.Additive);
         

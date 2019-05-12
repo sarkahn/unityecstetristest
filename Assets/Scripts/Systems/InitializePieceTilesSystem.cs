@@ -7,10 +7,11 @@ using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 
+//[DisableAutoCreation]
 [UpdateBefore(typeof(BoardSystem))]
 public class InitializePieceTilesSystem : JobComponentSystem
 {
-    [BurstCompile]
+    //[BurstCompile]
     [RequireComponentTag(typeof(PieceTiles), typeof(Child))]
     public struct Job : IJobForEachWithEntity<Piece>
     {
