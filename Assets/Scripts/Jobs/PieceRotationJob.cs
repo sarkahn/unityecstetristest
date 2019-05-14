@@ -42,7 +42,7 @@ struct PieceRotationJob : IJobForEachWithEntity<Translation>
             bool inBounds = cell.x >= 0 && cell.x < BoardUtility.BoardSize.x &&
             cell.y >= 0 && cell.y < BoardUtility.BoardSize.y + 5;
 
-            if (!inBounds || board[idx] != Entity.Null)
+            if (!inBounds || (idx < board.Length && board[idx] != Entity.Null) )
             {
                 //Debug.Log("Unable to rotate");
                 //Debug.LogFormat("TilePos {0}, Rotated {1}, CellPos {2}, Index {3}", tilePos, rotatedPos, newCellPos, idx);

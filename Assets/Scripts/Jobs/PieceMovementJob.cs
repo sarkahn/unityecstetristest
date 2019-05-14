@@ -20,34 +20,46 @@ struct PieceMovementJob : IJobForEachWithEntity<Translation>
     {
         var tilesBuffer = tilesLookup[entity];
         var piecePos = translation.Value;
-
-        for (int i = 0; i < tilesBuffer.Length; ++i)
+        
+        if( vel.x != 0 )
         {
-            float3 tilePos = tilesBuffer[i];
-            int3 cellPos = BoardUtility.ToCellPos(tilePos, piecePos);
-            int3 horDest = cellPos + new int3(vel.x, 0, 0);
-            int idx = BoardUtility.IndexFromCellPos(horDest);
-
-            if (!BoardUtility.InBounds(horDest) || board[idx] != Entity.Null)
+            for (int i = 0; i < tilesBuffer.Length; ++i)
             {
-                //Debug.LogFormat("Unable to move horizontally");
-                vel.x = 0;
-                break;
+                float3 tilePos = tilesBuffer[i];
+                int3 cell = BoardUtility.ToCellPos(tilePos, piecePos);
+                cell = cell + new int3(vel.x, 0, 0);
+                int idx = BoardUtility.IndexFromCellPos(cell);
+                bool inBounds = BoardUtility.InBounds(cell);
+
+                if (cell.x < 0 || cell.x >= BoardUtility.BoardSize.x ||
+                    (inBounds && board[idx] != Entity.Null))
+                {
+                    //Debug.LogFormat("Unable to move horizontally");
+                    vel.x = 0;
+                    break;
+                }
             }
         }
 
-        for (int i = 0; i < tilesBuffer.Length; ++i)
+        if( vel.y != 0 )
         {
-            float3 tilePos = tilesBuffer[i];
-            int3 cell = BoardUtility.ToCellPos(tilePos, piecePos);
-            int3 vertDest = cell + new int3(0, vel.y, 0);
-            int idx = BoardUtility.IndexFromCellPos(vertDest);
-
-            if (!BoardUtility.InBounds(vertDest) || board[idx] != Entity.Null)
+            for (int i = 0; i < tilesBuffer.Length; ++i)
             {
-                vel.y = 0;
-                commandBuffer.RemoveComponent<ActivePiece>(index, entity);
-                break;
+                float3 tilePos = tilesBuffer[i];
+                int3 cell = BoardUtility.ToCellPos(tilePos, piecePos);
+                cell = cell + new int3(0, vel.y, 0);
+
+                bool inBounds = BoardUtility.InBounds(cell);
+
+                int idx = BoardUtility.IndexFromCellPos(cell);
+
+                if (cell.y < 0 || (inBounds && board[idx] != Entity.Null))
+                {
+                    vel.y = 0;
+                    //UnityEngine.Debug.Log("PLACING PIECE");
+                    commandBuffer.RemoveComponent<ActivePiece>(index, entity);
+                    break;
+                }
             }
         }
 
