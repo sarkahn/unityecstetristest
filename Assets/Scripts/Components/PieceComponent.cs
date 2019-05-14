@@ -53,8 +53,8 @@ public class PieceComponent : MonoBehaviour, IConvertGameObjectToEntity
     {
         Gizmos.color = Color.magenta;
         float3 p = transform.position;
-        float3 offset = new float3(spawnOffset_, spawnOffset_, 0);
         p = math.floor(p);
+        p.z = -1;
         Gizmos.DrawWireSphere(p, .5f);
     }
 }

@@ -44,7 +44,7 @@ public class OnPieceSpawnedSystem : JobComponentSystem
                 int3 cell = (int3)math.floor(childLTW.Position);
                 if (cell.x < 0 || cell.x >= heightMap.Length)
                     continue;
-                //Debug.LogFormat("Tile {0} Cell {1}", positionIndex, cell);
+
                 offset = math.max(offset, heightMap[cell.x] - cell.y);
             }
 
