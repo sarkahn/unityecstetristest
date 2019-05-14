@@ -9,6 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6013116469675088437}
+  - component: {fileID: 3511747352583636828}
+  - component: {fileID: -9031070019489290376}
+  - component: {fileID: -7858257044999758546}
   m_Layer: 0
   m_Name: SPiece
   m_TagString: Untagged
@@ -34,6 +37,44 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3511747352583636828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013116469675088433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1719c8c7354fa544882fa2d49b70bd3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pieceType_: 4
+  spawnOffset_: 0
+--- !u!114 &-9031070019489290376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013116469675088433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5247ed961f49144dae4f0409417a921, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-7858257044999758546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013116469675088433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4e8f72583d68d44884449de0a0be1ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6013116470072307751
 GameObject:
   m_ObjectHideFlags: 0

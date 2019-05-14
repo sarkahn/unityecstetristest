@@ -14,7 +14,7 @@ using UnityEditor;
 public class NextPieceQueue : MonoBehaviour
 {
     [SerializeField]
-    List<GameObject> piecePrefabs_;
+    public List<GameObject> piecePrefabs_;
 
     [SerializeField]
     List<Transform> queuePositions_;
@@ -49,29 +49,23 @@ public class NextPieceQueue : MonoBehaviour
         FillQueue();
     }
 
-    public GameObject GetNextPiece()
+    public GameObject GetNextPiece(Vector3 pos)
     {
+        FillQueue();
+
         var nextPiece = pieceQueue_.Dequeue();
         nextPiece.transform.SetParent(null);
         nextPiece.transform.localScale = Vector3.one;
-        nextPiece.transform.position = activePieceSpawnPoint_.position;
-        //// Don't even talk to me
-        //float3 snap = new float3(.5f, .5f, 0) + new float3(nextPiece.GetComponent<PieceProxy>().snapOffset_, 0);
-        //snap = math.floor(nextPiece.transform.position) + snap;
-        //nextPiece.transform.position = snap;
-            
 
-        //float3 piecePos = nextPiece.transform.position;
-        //int offset = 0;
-        //for( int i = 0; i < nextPiece.transform.childCount; ++i )
-        //{
-        //    var kid = nextPiece.transform.GetChild(i);
-        //    int3 cell = BoardUtility.ToCellPos(kid.localPosition, piecePos);
-        //    int height = heightMap[cell.x];
-        //    if (height >= cell.y)
-        //        offset = math.max(offset, height - cell.y + 1);
-        //}
-        //nextPiece.transform.Translate(new Vector3(0, offset, 0));
+
+        var p = new float3(pos);
+        var pieceComponent = nextPiece.GetComponent<PieceComponent>();
+        var spawnOffset = new float3(pieceComponent.spawnOffset_, pieceComponent.spawnOffset_, 0);
+
+        p = math.floor(p) + new float3(0.5f, 0.5f, 0) + spawnOffset;
+        nextPiece.transform.position = p;
+
+        nextPiece.AddComponent<ConvertToEntity>();
 
         return nextPiece;
     }
@@ -89,7 +83,6 @@ public class NextPieceQueue : MonoBehaviour
         int i = 0;
         foreach (var piece in pieceQueue_)
             piece.transform.position = queuePositions_[i++].position;
-
     }
     
     int PullFromShuffleBag()
