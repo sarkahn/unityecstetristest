@@ -13,7 +13,6 @@ public class PieceRotationSystem : JobComponentSystem
     EntityQuery boardQuery_;
 
     //[BurstCompile]
-    
     [RequireComponentTag(typeof(ActivePiece), typeof(Child), typeof(Translation))]
     struct PieceRotationSystemJob : IJobForEachWithEntity<Piece>
     {
@@ -46,14 +45,29 @@ public class PieceRotationSystem : JobComponentSystem
 
                 int idx = cell.y * BoardUtility.BoardSize.x + cell.x;
 
-                if (idx < 0 || idx >= board.Length || board[idx] != Entity.Null )
+                if (cell.x < 0 || cell.x >= BoardUtility.BoardSize.x|| 
+                    idx < 0 || idx >= board.Length || 
+                    board[idx] != Entity.Null )
                 {
-                    Debug.LogFormat("Unable to rotate. Idx {0}, Cell {1}", idx, cell);
-                    break;
+                    //Debug.LogFormat("Unable to rotate. Idx {0}, Cell {1}", idx, cell);
+                    return;
                 }
+            }
 
+            // Doing the work twice...we need to check all rotations are valid
+            // before we apply them. We could add an "RotationBuffer" on the entities to store rotations,
+            // or buffer the rotated positions in a supplied array and apply them after checking...
+            // This is fine for now.
+            for (int i = 0; i < children.Length; ++i)
+            {
+                var child = children[i].Value;
+                var tilePos = posFromEntity[children[i].Value].Value;
+
+                var rotated = math.rotate(rot, tilePos);
                 posFromEntity[child] = new Translation { Value = rotated };
             }
+
+
         }
 
 
