@@ -20,21 +20,31 @@ public static class BoardUtility
 
         return index;
     }
+    
+    public static int IndexFromWorldPos(float3 worldPos)
+    {
+        return IndexFromCellPos((int3)math.floor(worldPos));
+    }
 
     public static int IndexFromCellPos(int3 cellPos)
     {
         return cellPos.y * BoardSize.x + cellPos.x;
     }
 
-    public static int3 ToCellPos(float3 tilePos, float3 piecePos)
-    {
-        return (int3)math.floor(tilePos + piecePos - .5f);
-    }
-
     public static bool InBounds(int3 cell)
     {
         return cell.x >= 0 && cell.x < BoardSize.x &&
             cell.y >= 0 && cell.y < BoardSize.y;
+    }
+
+    public static bool IndexInBounds(int idx)
+    {
+        return idx > 0 && idx < BoardCellCount;
+    }
+
+    public static int3 CellFromWorldPos(float3 worldPos)
+    {
+        return (int3)math.floor(worldPos);
     }
 
     // Round each component to the nearest given step

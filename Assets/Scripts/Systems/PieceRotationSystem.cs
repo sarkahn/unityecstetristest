@@ -8,9 +8,12 @@ using Unity.Burst;
 using Unity.Transforms;
 using Unity.Collections;
 
+//[DisableAutoCreation]
+[UpdateAfter(typeof(InitBoardSystem))]
 public class PieceRotationSystem : JobComponentSystem
 {
     EntityQuery boardQuery_;
+    public JobHandle JobHandle_ { get; private set; }
 
     //[BurstCompile]
     [RequireComponentTag(typeof(ActivePiece), typeof(Child), typeof(Translation))]
@@ -19,56 +22,110 @@ public class PieceRotationSystem : JobComponentSystem
         [ReadOnly]
         public BufferFromEntity<Child> childrenFromEntity;
         
-        [NativeDisableParallelForRestriction]
         public ComponentDataFromEntity<Translation> posFromEntity;
-
-        [ReadOnly]
-        [DeallocateOnJobCompletion]
+        
+        [NativeDisableParallelForRestriction]
         public NativeArray<BoardCell> board;
 
+        [ReadOnly]
+        public ComponentDataFromEntity<Parent> parentFromEntity;
+        
         public int rotationDirection;
 
         public void Execute(Entity entity, int index, ref Piece piece)
         {
+            //if (piece.pieceType == PieceType.OPiece)
+            //    return;
+
             var children = childrenFromEntity[entity];
             var piecePos = posFromEntity[entity].Value;
 
             var rot = quaternion.RotateZ(math.radians(90f * rotationDirection));
 
-            NativeArray<float3> posBuffer = new NativeArray<float3>(children.Length, Allocator.Temp);
+            NativeArray<float3> oldPositions = new NativeArray<float3>(children.Length, Allocator.Temp);
+            NativeArray<float3> newPositions = new NativeArray<float3>(children.Length, Allocator.Temp);
 
-            for( int i = 0; i < children.Length; ++i )
+            {
+                //int idx = BoardUtility.IndexFromCellPos(new int3(1, 1, 0));
+                //Debug.LogFormat("Piece {0} ({1}), Board Cell 1,1: {2}", entity, piece.pieceType, board[idx].value);
+            }
+
+            for ( int i = 0; i < children.Length; ++i )
             {
                 var child = children[i].Value;
                 var tilePos = posFromEntity[children[i].Value].Value;
-
+                
                 var rotated = math.rotate(rot, tilePos);
-                int3 cell = (int3)math.floor(tilePos + piecePos);
+                rotated = BoardUtility.RoundedStep(rotated, .5f);
+                int3 cell = BoardUtility.CellFromWorldPos(piecePos + rotated);
 
-                int idx = cell.y * BoardUtility.BoardSize.x + cell.x;
+                //Debug.LogFormat("Rotating from {0} to {1}:", 
+                //    BoardUtility.CellFromWorldPos(piecePos + tilePos), cell);
 
-                if (cell.x < 0 || cell.x >= BoardUtility.BoardSize.x|| 
-                    idx < 0 || idx >= board.Length || 
-                    board[idx] != Entity.Null )
+                int idx = BoardUtility.IndexFromCellPos(cell);
+
+                if (cell.x < 0 || cell.x >= BoardUtility.BoardSize.x || 
+                    cell.y < 0 ||
+                    !BoardSpaceIsClear(entity, cell))
+
                 {
+                    //Debug.LogFormat("PIECE {0} CANNOT BE ROTATED. CELL {1} CONTAINS {2}", entity, cell, board[idx].value);
                     return;
                 }
-                posBuffer[i] = rotated;
+
+                oldPositions[i] = tilePos;
+                newPositions[i] = rotated;
             }
 
-            for (int i = 0; i < posBuffer.Length; ++i)
+            // Clear old positions
+            for( int i = 0; i < oldPositions.Length; ++i )
             {
-                var child = children[i].Value;
-                posFromEntity[child] = new Translation { Value = posBuffer[i] };
+                int idx = BoardUtility.IndexFromWorldPos(piecePos + oldPositions[i]);
+                if (BoardUtility.IndexInBounds(idx))
+                    board[idx] = Entity.Null;
             }
+
+            // Update new positions
+            for( int i = 0; i < newPositions.Length; ++i )
+            {
+                var tile = children[i].Value;
+                posFromEntity[tile] = new Translation { Value = newPositions[i] };
+
+                int idx = BoardUtility.IndexFromWorldPos(piecePos + newPositions[i]);
+                if(BoardUtility.IndexInBounds(idx))
+                    board[idx] = tile;
+            }
+        }
+
+        bool BoardSpaceIsClear(Entity self, int3 cell)
+        {
+            int idx = cell.y * BoardUtility.BoardSize.x + cell.x;
+            return (!BoardUtility.IndexInBounds(idx)) || board[idx] == Entity.Null ||
+                parentFromEntity[board[idx]].Value == self;
         }
 
 
     }
 
+    struct RotationJob : IJobForEachWithEntity<Piece>
+    {
+        [NativeDisableParallelForRestriction]
+        public ComponentDataFromEntity<Translation> posFromEntity;
+
+        [ReadOnly]
+        public BufferFromEntity<Child> childrenFromEntity;
+        
+        public void Execute(Entity entity, int index, ref Piece piece)
+        {
+            float3 piecePos = posFromEntity[entity].Value;
+
+            var children = childrenFromEntity[entity];
+        }
+    }
+
     protected override void OnCreate()
     {
-        boardQuery_ = GetEntityQuery(ComponentType.ReadOnly<BoardCell>());
+        boardQuery_ = GetEntityQuery(ComponentType.ReadWrite<BoardCell>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -88,9 +145,17 @@ public class PieceRotationSystem : JobComponentSystem
                 posFromEntity = GetComponentDataFromEntity<Translation>(false),
                 board = board,
                 rotationDirection = rotation,
-            }.Schedule(this, JobHandle.CombineDependencies(getBoardJob, job));
+                parentFromEntity = GetComponentDataFromEntity<Parent>(true),
+            }.ScheduleSingle(this, JobHandle.CombineDependencies(getBoardJob, job));
+
+            job = new UpdateBoardJob
+            {
+                cellType = GetArchetypeChunkComponentType<BoardCell>(false),
+                newValues = board,
+            }.Schedule(boardQuery_, job);
         }
 
+        JobHandle_ = job;
 
         return job;
     }
