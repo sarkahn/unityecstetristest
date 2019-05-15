@@ -35,6 +35,8 @@ public class PieceRotationSystem : JobComponentSystem
 
             var rot = quaternion.RotateZ(math.radians(90f * rotationDirection));
 
+            NativeArray<float3> posBuffer = new NativeArray<float3>(children.Length, Allocator.Temp);
+
             for( int i = 0; i < children.Length; ++i )
             {
                 var child = children[i].Value;
@@ -49,25 +51,16 @@ public class PieceRotationSystem : JobComponentSystem
                     idx < 0 || idx >= board.Length || 
                     board[idx] != Entity.Null )
                 {
-                    //Debug.LogFormat("Unable to rotate. Idx {0}, Cell {1}", idx, cell);
                     return;
                 }
+                posBuffer[i] = rotated;
             }
 
-            // Doing the work twice...we need to check all rotations are valid
-            // before we apply them. We could add an "RotationBuffer" on the entities to store rotations,
-            // or buffer the rotated positions in a supplied array and apply them after checking...
-            // This is fine for now.
-            for (int i = 0; i < children.Length; ++i)
+            for (int i = 0; i < posBuffer.Length; ++i)
             {
                 var child = children[i].Value;
-                var tilePos = posFromEntity[children[i].Value].Value;
-
-                var rotated = math.rotate(rot, tilePos);
-                posFromEntity[child] = new Translation { Value = rotated };
+                posFromEntity[child] = new Translation { Value = posBuffer[i] };
             }
-
-
         }
 
 
@@ -86,8 +79,8 @@ public class PieceRotationSystem : JobComponentSystem
 
         if (rotation != 0 )
         {
-            //Debug.Log("ROTATING");
-            var board = boardQuery_.ToComponentDataArray<BoardCell>(Allocator.TempJob);
+            JobHandle getBoardJob;
+            var board = boardQuery_.ToComponentDataArray<BoardCell>(Allocator.TempJob, out getBoardJob);
 
             job = new PieceRotationSystemJob
             {
@@ -95,7 +88,7 @@ public class PieceRotationSystem : JobComponentSystem
                 posFromEntity = GetComponentDataFromEntity<Translation>(false),
                 board = board,
                 rotationDirection = rotation,
-            }.Schedule(this, job);
+            }.Schedule(this, JobHandle.CombineDependencies(getBoardJob, job));
         }
 
 

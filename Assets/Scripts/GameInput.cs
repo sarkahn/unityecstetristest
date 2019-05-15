@@ -87,6 +87,14 @@ public static class InputHandling
         return mov;
     }
 
+    static public int3 GetVelocity()
+    {
+        int3 vel = 0;
+        vel.x = GetHorizontalInput();
+        vel.y = GetFallTimer() <= 0 ? -1 : 0;
+        return vel;
+    }
+
     public static bool InstantDrop()
     {
         return Input.GetButtonDown("Drop");
