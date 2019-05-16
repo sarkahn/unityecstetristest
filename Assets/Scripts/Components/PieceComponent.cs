@@ -34,20 +34,13 @@ public class PieceComponent : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponentData(entity, new Piece { pieceType = pieceType_, snapOffset = spawnOffset_ });
         var t = transform;
-
-        //dstManager.SetComponentData(entity, new Translation { Value = Snap(t.position) });
-
+        
         for( int i = 0; i < t.childCount; ++i )
         {
             var e = conversionSystem.GetPrimaryEntity(t.GetChild(i).gameObject);
             dstManager.AddComponent(e, typeof(PieceTile));
         }
     }
-
-    //float3 Snap(float3 p)
-    //{
-    //    return math.floor(p) + new float3(0.5f, 0.5f, 0) + new float3(spawnOffset_, spawnOffset_, 0);
-    //}
 
     private void OnDrawGizmosSelected()
     {

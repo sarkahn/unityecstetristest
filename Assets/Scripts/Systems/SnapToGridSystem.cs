@@ -5,8 +5,10 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using static Unity.Mathematics.math;
 
+//[UpdateInGroup(typeof(TRSToLocalToParentSystem))]
+//[UpdateBefore(typeof(TRSToLocalToParentSystem))]
+[UpdateBefore(typeof(InitBoardSystem))]
 public class SnapToGridSystem : JobComponentSystem
 {
     EndSimulationEntityCommandBufferSystem initCommandBufferSystem_;

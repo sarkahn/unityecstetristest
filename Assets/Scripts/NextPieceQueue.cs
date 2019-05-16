@@ -49,6 +49,11 @@ public class NextPieceQueue : MonoBehaviour
         FillQueue();
     }
 
+    public GameObject GetNextPiece()
+    {
+        return GetNextPiece(activePieceSpawnPoint_.position);
+    }
+
     public GameObject GetNextPiece(Vector3 pos)
     {
         FillQueue();

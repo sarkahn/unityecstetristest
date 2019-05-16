@@ -12,6 +12,6 @@ using Unity.Mathematics;
 public struct BoardCell : IComponentData
 {
     public Entity value;
-    public static implicit operator Entity(BoardCell cell) { return cell.value; }
-    public static implicit operator BoardCell(Entity e) { return new BoardCell { value = e }; }
+    //public static implicit operator Entity(BoardCell cell) { return cell.value; }
+    //public static implicit operator BoardCell(Entity e) { return new BoardCell { value = e }; }
 }

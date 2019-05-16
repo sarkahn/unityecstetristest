@@ -11,8 +11,7 @@ public class PieceMovementSystem : JobComponentSystem
 {
     EntityQuery boardQuery_;
     BeginInitializationEntityCommandBufferSystem initCommandBufferSystem_;
-
-    //[BurstCompile]
+    
     [RequireComponentTag(typeof(ActivePiece), typeof(Child))]
     struct PieceMovementSystemJob : IJobForEachWithEntity<Piece>
     {
@@ -31,6 +30,7 @@ public class PieceMovementSystem : JobComponentSystem
         public ComponentDataFromEntity<Translation> posFromEntity;
         
         [NativeDisableParallelForRestriction]
+        [DeallocateOnJobCompletion]
         public NativeArray<BoardCell> board;
 
         [ReadOnly]
@@ -56,13 +56,17 @@ public class PieceMovementSystem : JobComponentSystem
 
             // Uncomment to disable gravity
             //vel.y = 0;
-
+            
             for (int i = 0; i < children.Length; ++i)
             {
                 var tilePos = posFromEntity[children[i].Value].Value;
                 tilePositions[i] = tilePos;
             }
+            
+            // Piece movement gets processed one at a time - horizonal first, then
+            // vertical. This guarantees tiles will never overlap no matter what
 
+            // Check if horizontal movement is valid.
             if ( vel.x != 0 )
             {
                 for (int i = 0; i < children.Length; ++i)
@@ -78,29 +82,31 @@ public class PieceMovementSystem : JobComponentSystem
                         vel.x = 0;
                         break;
                     }
-                    
-
                 }
             }
 
             piecePos.x += vel.x;
 
+            // Check if vertical movement is valid
             if( vel.y != 0 )
             {
-                for( int i = 0; i < children.Length; ++i )
+                for ( int i = 0; i < children.Length; ++i )
                 {
                     int3 cell = (int3)math.floor(piecePos + tilePositions[i]);
                     cell.y += vel.y;
                     
                     // Check if we've hit the bottom of the board or if
                     // the tile in the cell we're dropping against is inactive
+                    // If so we change this piece and it's tiles to inactive
                     if (cell.y < 0 || IsInactiveTile(cell))
                     {
+                        commandBuffer.AddComponent(index, entity, new DroppedPiece());
                         commandBuffer.RemoveComponent<ActivePiece>(index, entity);
                         for (int j = 0; j < children.Length; ++j)
                             commandBuffer.RemoveComponent<ActiveTile>(index, children[j].Value);
                     }
 
+                    // Account for other active pieces on the board
                     if( cell.y < 0 || !BoardSpaceIsClear(entity, cell))
                     {
                         vel.y = 0;
@@ -115,22 +121,31 @@ public class PieceMovementSystem : JobComponentSystem
 
             if( math.lengthsq(vel) != 0 )
             {
-                //Debug.Log("(Should be) moving piece");
+                //Debug.LogFormat("Moving piece {0}. Velocity {1}. OldPiecePos {2}. NewPiecePos {3}", 
+                //    entity, vel, oldPiecePos, piecePos);
                 posFromEntity[entity] = new Translation { Value = piecePos };
                 
                 // Update board state
                 for( int i = 0; i < children.Length; ++i )
                 {
-                    int oldIdx = BoardUtility.IndexFromWorldPos(oldPiecePos + tilePositions[i]);
+                    int3 oldCellPos = BoardUtility.CellFromWorldPos(oldPiecePos + tilePositions[i]);
+                    int oldIdx = BoardUtility.IndexFromCellPos(oldCellPos);
                     if( BoardUtility.IndexInBounds(oldIdx))
-                        board[oldIdx] = Entity.Null;
+                        board[oldIdx] = new BoardCell { value = Entity.Null };
+
+                    //Debug.LogFormat("Nulling board at {0}", oldCellPos);
                 }
 
                 for( int i = 0; i < children.Length; ++i )
                 {
-                    int newIdx = BoardUtility.IndexFromWorldPos(piecePos + tilePositions[i]);
+                    int3 newCellPos = BoardUtility.CellFromWorldPos(piecePos + tilePositions[i]);
+                    int newIdx = BoardUtility.IndexFromCellPos(newCellPos);
                     if (BoardUtility.IndexInBounds(newIdx))
-                        board[newIdx] = children[i].Value;
+                    {
+                        board[newIdx] = new BoardCell { value = children[i].Value };
+                        //Debug.LogFormat("Board after insertion at index {0} : {1}", newIdx, board[newIdx].value);
+                    }
+
                 }
             }
         }
@@ -139,15 +154,15 @@ public class PieceMovementSystem : JobComponentSystem
         bool BoardSpaceIsClear(Entity self, int3 cell)
         {
             int idx = cell.y * BoardUtility.BoardSize.x + cell.x;
-            return idx < 0 || idx >= board.Length || board[idx] == Entity.Null || 
-                parentFromEntity[board[idx]].Value == self;
+            return !(BoardUtility.IndexInBounds(idx)) || board[idx].value == Entity.Null || 
+                parentFromEntity[board[idx].value].Value == self;
         }
 
         bool IsInactiveTile(int3 cell)
         {
             int idx = BoardUtility.IndexFromCellPos(cell);
-            return BoardUtility.IndexInBounds(idx) && board[idx] != Entity.Null 
-                && !activeTileFromEntity.Exists(board[idx]);
+            return BoardUtility.IndexInBounds(idx) && board[idx].value != Entity.Null 
+                && !activeTileFromEntity.Exists(board[idx].value);
         }
 
     }
@@ -164,11 +179,11 @@ public class PieceMovementSystem : JobComponentSystem
 
         var vel = InputHandling.GetVelocity();
 
-        if( math.lengthsq(vel) != 0 )
+        if (math.lengthsq(vel) != 0)
         {
             JobHandle getBoardJob;
             var board = boardQuery_.ToComponentDataArray<BoardCell>(Allocator.TempJob, out getBoardJob);
-            
+
             job = new PieceMovementSystemJob
             {
                 posFromEntity = GetComponentDataFromEntity<Translation>(false),
@@ -179,16 +194,8 @@ public class PieceMovementSystem : JobComponentSystem
                 parentFromEntity = GetComponentDataFromEntity<Parent>(true),
                 activeTileFromEntity = GetComponentDataFromEntity<ActiveTile>(true),
             }.Schedule(this, JobHandle.CombineDependencies(getBoardJob, job));
-            
-            // Rotation affects the board so we run after it
-            //JobHandle.CombineDependencies(job, World.GetOrCreateSystem<PieceRotationSystem>().JobHandle_);
 
-            // Apply our new board data
-            job = new UpdateBoardJob
-            {
-                cellType = GetArchetypeChunkComponentType<BoardCell>(false),
-                newValues = board,
-            }.Schedule(boardQuery_, job);
+            initCommandBufferSystem_.AddJobHandleForProducer(job);
         }
         
         return job;

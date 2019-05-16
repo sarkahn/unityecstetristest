@@ -39,7 +39,7 @@ public static class BoardUtility
 
     public static bool IndexInBounds(int idx)
     {
-        return idx > 0 && idx < BoardCellCount;
+        return idx >= 0 && idx < BoardCellCount;
     }
 
     public static int3 CellFromWorldPos(float3 worldPos)

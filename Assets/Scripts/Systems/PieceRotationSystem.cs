@@ -13,9 +13,8 @@ using Unity.Collections;
 public class PieceRotationSystem : JobComponentSystem
 {
     EntityQuery boardQuery_;
-    public JobHandle JobHandle_ { get; private set; }
 
-    //[BurstCompile]
+    [BurstCompile]
     [RequireComponentTag(typeof(ActivePiece), typeof(Child), typeof(Translation))]
     struct PieceRotationSystemJob : IJobForEachWithEntity<Piece>
     {
@@ -25,6 +24,7 @@ public class PieceRotationSystem : JobComponentSystem
         public ComponentDataFromEntity<Translation> posFromEntity;
         
         [NativeDisableParallelForRestriction]
+        [DeallocateOnJobCompletion]
         public NativeArray<BoardCell> board;
 
         [ReadOnly]
@@ -82,7 +82,7 @@ public class PieceRotationSystem : JobComponentSystem
             {
                 int idx = BoardUtility.IndexFromWorldPos(piecePos + oldPositions[i]);
                 if (BoardUtility.IndexInBounds(idx))
-                    board[idx] = Entity.Null;
+                    board[idx] = new BoardCell { value = Entity.Null };
             }
 
             // Update new positions
@@ -93,15 +93,15 @@ public class PieceRotationSystem : JobComponentSystem
 
                 int idx = BoardUtility.IndexFromWorldPos(piecePos + newPositions[i]);
                 if(BoardUtility.IndexInBounds(idx))
-                    board[idx] = tile;
+                    board[idx] = new BoardCell { value = tile };
             }
         }
 
         bool BoardSpaceIsClear(Entity self, int3 cell)
         {
             int idx = cell.y * BoardUtility.BoardSize.x + cell.x;
-            return (!BoardUtility.IndexInBounds(idx)) || board[idx] == Entity.Null ||
-                parentFromEntity[board[idx]].Value == self;
+            return (!BoardUtility.IndexInBounds(idx)) || board[idx].value == Entity.Null ||
+                parentFromEntity[board[idx].value].Value == self;
         }
 
 
@@ -147,15 +147,7 @@ public class PieceRotationSystem : JobComponentSystem
                 rotationDirection = rotation,
                 parentFromEntity = GetComponentDataFromEntity<Parent>(true),
             }.ScheduleSingle(this, JobHandle.CombineDependencies(getBoardJob, job));
-
-            job = new UpdateBoardJob
-            {
-                cellType = GetArchetypeChunkComponentType<BoardCell>(false),
-                newValues = board,
-            }.Schedule(boardQuery_, job);
         }
-
-        JobHandle_ = job;
 
         return job;
     }
