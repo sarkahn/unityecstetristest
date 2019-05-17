@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct DroppedPiece : IComponentData
+public struct SpawnNextPiece : IComponentData
 {
     
 }

@@ -16,7 +16,7 @@ public class NextPieceSystem : ComponentSystem
     protected override void OnCreate()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        droppedPieceQuery_ = GetEntityQuery(typeof(DroppedPiece));
+        droppedPieceQuery_ = GetEntityQuery(typeof(SpawnNextPiece));
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -30,7 +30,7 @@ public class NextPieceSystem : ComponentSystem
         Entities.With(droppedPieceQuery_).ForEach(
             (Entity e)=>
             {
-                PostUpdateCommands.RemoveComponent(e, typeof(DroppedPiece));
+                PostUpdateCommands.RemoveComponent(e, typeof(SpawnNextPiece));
                 
             });
 

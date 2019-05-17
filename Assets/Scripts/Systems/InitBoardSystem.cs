@@ -59,8 +59,7 @@ public class InitBoardSystem : JobComponentSystem
                 //Debug.LogFormat("Parent {0}, LTWPos {1}, TilePos {2}, PiecePos {3}, Tile+Piece {4}", parent, ltwPos, tilePos, piecePos, tilePos + piecePos);
 
                 //Debug.LogFormat("Setting board pos {0} to {1} from Piece {2}", cell, tile, parent);
-
-                if (BoardUtility.IndexInBounds(idx))
+                if ( BoardUtility.InBounds(cell) && BoardUtility.IndexInBounds(idx))
                     cells[idx] = new BoardCell { value = tile };
             }
         }

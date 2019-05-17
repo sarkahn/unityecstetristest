@@ -78,6 +78,7 @@ public class LineClearSystem : JobComponentSystem
     [RequireComponentTag(typeof(Child), typeof(PieceTileCountChanged))]
     struct UpdatePieceChildrenJob : IJobForEachWithEntity<Piece>
     {
+        // Guaranteed safe since pieces don't share children
         [NativeDisableParallelForRestriction]
         public BufferFromEntity<Child> tilesFromEntity;
 
@@ -98,7 +99,7 @@ public class LineClearSystem : JobComponentSystem
         }
     };
 
-    //[BurstCompile]
+    [BurstCompile]
     [ExcludeComponent(typeof(ActiveTile))]
     [RequireComponentTag(typeof(PieceTile))]
     struct MoveTilesAfterLineClear : IJobForEachWithEntity<Parent>
@@ -117,6 +118,9 @@ public class LineClearSystem : JobComponentSystem
 
             for (int height = 0; height < linesCleared.Length; ++height)
             {
+                // We can't use localtoworld since our SnapToGrid system
+                // might have changed the parent translation and our
+                // ltw would be out of date
                 float3 worldPos = piecePos + tilePos;
                 int yPos = (int)math.floor(worldPos.y);
                 if (linesCleared[height] && yPos >= height)

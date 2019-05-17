@@ -100,7 +100,7 @@ public class PieceMovementSystem : JobComponentSystem
                     // If so we change this piece and it's tiles to inactive
                     if (cell.y < 0 || IsInactiveTile(cell))
                     {
-                        commandBuffer.AddComponent(index, entity, new DroppedPiece());
+                        commandBuffer.AddComponent(index, entity, new SpawnNextPiece());
                         commandBuffer.RemoveComponent<ActivePiece>(index, entity);
                         for (int j = 0; j < children.Length; ++j)
                             commandBuffer.RemoveComponent<ActiveTile>(index, children[j].Value);
