@@ -12,7 +12,7 @@ public class PieceMovementSystem : JobComponentSystem
     EntityQuery boardQuery_;
     BeginInitializationEntityCommandBufferSystem initCommandBufferSystem_;
     
-    [RequireComponentTag(typeof(ActivePiece), typeof(Child))]
+    [RequireComponentTag(typeof(ActivePiece))]
     struct PieceMovementSystemJob : IJobForEachWithEntity<Piece>
     {
         [ReadOnly]
@@ -46,6 +46,9 @@ public class PieceMovementSystem : JobComponentSystem
         
         public void Execute(Entity entity, int index, [ReadOnly] ref Piece piece )
         {
+            if (!childrenFromEntity.Exists(entity))
+                return;
+
             var children = childrenFromEntity[entity];
             float3 piecePos = posFromEntity[entity].Value;
             float3 oldPiecePos = piecePos;
@@ -55,7 +58,7 @@ public class PieceMovementSystem : JobComponentSystem
             int3 vel = inputVel;
 
             // Uncomment to disable gravity
-            //vel.y = 0;
+            vel.y = 0;
             
             for (int i = 0; i < children.Length; ++i)
             {
@@ -101,6 +104,7 @@ public class PieceMovementSystem : JobComponentSystem
                     if (cell.y < 0 || IsInactiveTile(cell))
                     {
                         commandBuffer.AddComponent(index, entity, new SpawnNextPiece());
+                        commandBuffer.AddComponent(index, entity, new DroppedPiece());
                         commandBuffer.RemoveComponent<ActivePiece>(index, entity);
                         for (int j = 0; j < children.Length; ++j)
                             commandBuffer.RemoveComponent<ActiveTile>(index, children[j].Value);

@@ -5,23 +5,35 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(SnapToGridSystem))]
+[UpdateAfter(typeof(InitBoardSystem))]
 public class InitHeightMapSystem : JobComponentSystem
 {
     EntityQuery heightMapQuery_;
-
-    [RequireComponentTag(typeof(PieceTile))]
-    [ExcludeComponent(typeof(ActiveTile))]
+    
     [BurstCompile]
-    struct GetHeightmapDataJob : IJobForEach<LocalToWorld>
+    [RequireComponentTag(typeof(Child))]
+    [ExcludeComponent(typeof(ActivePiece), typeof(SnapToHeightmap))]
+    struct GetHeightmapDataJob : IJobForEachWithEntity<Piece>
     {
         [NativeDisableParallelForRestriction]
         public NativeArray<int> heightMap;
 
-        public void Execute([ReadOnly] ref LocalToWorld t)
+        [ReadOnly]
+        public ComponentDataFromEntity<Translation> posFromEntity;
+        [ReadOnly]
+        public BufferFromEntity<Child> tilesFromEntity;
+
+        public void Execute(Entity entity, int index, ref Piece c0)
         {
-            int3 cell = (int3)math.floor(t.Position);
-            heightMap[cell.x] = math.max(heightMap[cell.x], cell.y + 1);
+            float3 piecePos = posFromEntity[entity].Value;
+
+            var tiles = tilesFromEntity[entity];
+            for( int i = 0; i < tiles.Length; ++i )
+            {
+                float3 tilePos = posFromEntity[tiles[i].Value].Value;
+                int3 cell = BoardUtility.CellFromWorldPos(piecePos + tilePos);
+                heightMap[cell.x] = math.max(heightMap[cell.x], cell.y + 1);
+            }
         }
     }
 
@@ -56,6 +68,8 @@ public class InitHeightMapSystem : JobComponentSystem
         job = new GetHeightmapDataJob
         {
             heightMap = heightMap,
+            posFromEntity = GetComponentDataFromEntity<Translation>(true),
+            tilesFromEntity = GetBufferFromEntity<Child>(true),
         }.ScheduleSingle(this, job);
 
 
@@ -64,8 +78,8 @@ public class InitHeightMapSystem : JobComponentSystem
             cellType = GetArchetypeChunkComponentType<HeightmapCell>(false),
             heightMap = heightMap,
         }.Schedule(heightMapQuery_, job);
+        
 
-        // Now that the job is set up, schedule it to be run. 
         return job;
     }
 }

@@ -8,77 +8,79 @@ using UnityEngine;
 
 //[DisableAutoCreation]
 // Set the correct height for newly spawned pieces
-[UpdateAfter(typeof(InitHeightMapSystem))]
-public class OnPieceSpawnedSystem : JobComponentSystem
+[UpdateInGroup(typeof(TransformSystemGroup))]
+[UpdateBefore(typeof(EndFrameParentSystem))]
+public class SnapToHeightmapSystem : JobComponentSystem
 {
-    EndSimulationEntityCommandBufferSystem initBufferSystem_;
-    EntityQuery snapQuery_;
+    BeginInitializationEntityCommandBufferSystem initBufferSystem_;
     EntityQuery heightMapQuery_;
     
-    [RequireComponentTag(typeof(Piece), typeof(ActivePiece), typeof(SnapToHeightmap), typeof(Child))]
-    struct SnapPiecesToHeightmap : IJobForEachWithEntity<Translation>
+    [RequireComponentTag(typeof(SnapToHeightmap), typeof(Child))]
+    struct SnapPiecesToHeightmap : IJobForEachWithEntity<Piece>
     {
         [ReadOnly]
         public EntityCommandBuffer.Concurrent commandBuffer;
         
         [ReadOnly]
         [DeallocateOnJobCompletion]
-        [NativeDisableParallelForRestriction]
         public NativeArray<HeightmapCell> heightMap;
+        
+        [NativeDisableParallelForRestriction]
+        public ComponentDataFromEntity<Translation> posFromEntity;
 
         [ReadOnly]
-        public BufferFromEntity<Child> childrenFromEntity;
-        [ReadOnly]
-        public ComponentDataFromEntity<LocalToWorld> ltwFromEntity;
+        public BufferFromEntity<Child> tilesFromEntity;
 
-        public void Execute(Entity entity, int index, ref Translation t)
+        public void Execute(Entity entity, int index, ref Piece piece)
         {
             commandBuffer.RemoveComponent<SnapToHeightmap>(index, entity);
 
-            int offset = 0;
+            
+            float3 piecePos = posFromEntity[entity].Value;
 
-            var children = childrenFromEntity[entity];
+            int highestPoint = -99;
+            int lowestCell = 99;
+
+            var children = tilesFromEntity[entity];
             for( int i = 0; i < children.Length; ++i )
             {
-                var childLTW = ltwFromEntity[children[i].Value];
-                int3 cell = (int3)math.floor(childLTW.Position);
+                float3 tilePos = posFromEntity[children[i].Value].Value;
+                int3 cell = BoardUtility.CellFromWorldPos(tilePos + piecePos);
+
                 if (cell.x < 0 || cell.x >= heightMap.Length)
                     continue;
 
-                offset = math.max(offset, heightMap[cell.x] - cell.y);
+                highestPoint = math.max(highestPoint, heightMap[cell.x]);
+                lowestCell = math.min(lowestCell, cell.y);
             }
+            //Debug.LogFormat("Snapping {0} to heightmap, offset {1}", entity, offset);
 
-            var p = t.Value;
-            p.y += offset;
-            t.Value  = p;
+            piecePos.y += (highestPoint - lowestCell);
+            posFromEntity[entity] = new Translation { Value = piecePos };
         }
     }
 
     protected override void OnCreate()
     {
-        initBufferSystem_ = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        initBufferSystem_ = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         
         heightMapQuery_ = GetEntityQuery(typeof(HeightmapCell));
-        snapQuery_ = GetEntityQuery(typeof(SnapToHeightmap), typeof(ActivePiece));
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var job = inputDeps;
-
-        if(snapQuery_.CalculateLength() != 0 )
-        {
-            // Get our heightmap
-            var heightMap = heightMapQuery_.ToComponentDataArray<HeightmapCell>(Allocator.TempJob);
+        
+        // Get our heightmap
+        var heightMap = heightMapQuery_.ToComponentDataArray<HeightmapCell>(Allocator.TempJob);
             
-            job = new SnapPiecesToHeightmap
-            {
-                commandBuffer = initBufferSystem_.CreateCommandBuffer().ToConcurrent(),
-                heightMap = heightMap,
-                childrenFromEntity = GetBufferFromEntity<Child>(true),
-                ltwFromEntity = GetComponentDataFromEntity<LocalToWorld>(true),
-            }.Schedule(this, job);
-        }
+        job = new SnapPiecesToHeightmap
+        {
+            commandBuffer = initBufferSystem_.CreateCommandBuffer().ToConcurrent(),
+            heightMap = heightMap,
+            tilesFromEntity = GetBufferFromEntity<Child>(true),
+            posFromEntity = GetComponentDataFromEntity<Translation>(false),
+        }.Schedule(this, job);
 
         return job;
     }

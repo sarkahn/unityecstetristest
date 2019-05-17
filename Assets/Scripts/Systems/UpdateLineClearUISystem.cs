@@ -8,14 +8,17 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 public class UpdateLineClearUISystem : ComponentSystem
 {
+    EntityQuery updateUIQuery_;
     LineClearUI lineClearUI_;
 
     protected override void OnCreate()
     {
         // We can't access any gameobjects until the scene is loaded
         SceneManager.sceneLoaded += OnSceneLoaded;
+        updateUIQuery_ = GetEntityQuery(typeof(UpdateLineClearUI));
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -28,9 +31,9 @@ public class UpdateLineClearUISystem : ComponentSystem
         Entities.ForEach(
             (Entity e, ref UpdateLineClearUI updateUIComponent)=>
             {
-                lineClearUI_.Value_ += updateUIComponent.linesClearedCount;
-                PostUpdateCommands.DestroyEntity(e);
+                if( lineClearUI_)
+                    lineClearUI_.Value_ += updateUIComponent.linesClearedCount;
             });
-
+        EntityManager.DestroyEntity(updateUIQuery_);
     }
 }

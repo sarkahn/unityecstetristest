@@ -22,6 +22,8 @@ public class NextPieceSystem : ComponentSystem
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         pieceQueue_ = GameObject.FindObjectOfType<NextPieceQueue>();
+        if (pieceQueue_ == null)
+            Enabled = false;
     }
     
 
@@ -35,5 +37,6 @@ public class NextPieceSystem : ComponentSystem
             });
 
         pieceQueue_.GetNextPiece();
+        InputHandling.ResetDropTimer();
     }
 }

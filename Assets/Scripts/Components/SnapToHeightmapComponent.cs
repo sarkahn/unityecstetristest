@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 /// <summary>
-/// When added to an entity <seealso cref="OnPieceSpawnedSystem"/> will
+/// When added to an entity <seealso cref="SnapToHeightmapSystem"/> will
 /// snap that entity to the heightmap.
 /// </summary>
 [Serializable]

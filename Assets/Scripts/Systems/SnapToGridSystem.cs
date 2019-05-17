@@ -8,7 +8,8 @@ using UnityEngine;
 
 //[UpdateInGroup(typeof(TRSToLocalToParentSystem))]
 //[UpdateBefore(typeof(TRSToLocalToParentSystem))]
-[UpdateBefore(typeof(InitBoardSystem))]
+[UpdateInGroup(typeof(TransformSystemGroup))]
+[UpdateBefore(typeof(EndFrameParentSystem))]
 public class SnapToGridSystem : JobComponentSystem
 {
     EndSimulationEntityCommandBufferSystem initCommandBufferSystem_;

@@ -1,10 +1,10 @@
 ﻿using System;
-using Unity.Collections;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Mathematics;
+using UnityEngine;
 
 [Serializable]
-public struct SpawnNextPiece : IComponentData
+public struct DroppedPiece : IComponentData
 {
-    
 }

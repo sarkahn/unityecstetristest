@@ -63,10 +63,8 @@ public class LineClearSystem : JobComponentSystem
 
                         //Debug.LogFormat("Destroying {0} at cell {1}, idx {2}", cells[idx].value, cell, idx);
         
-                        commandBuffer.AddComponent(chunkIndex, piece, new PieceTileCountChanged());
                         commandBuffer.DestroyEntity(chunkIndex, cells[idx].value);
-
-
+                        
                         cells[idx] = new BoardCell { value = Entity.Null };
                     }
                 }
@@ -75,19 +73,17 @@ public class LineClearSystem : JobComponentSystem
     }
 
     // Update piece tiles after line clears
-    [RequireComponentTag(typeof(Child), typeof(PieceTileCountChanged))]
+    [RequireComponentTag(typeof(Child))]
     struct UpdatePieceChildrenJob : IJobForEachWithEntity<Piece>
     {
-        // Guaranteed safe since pieces don't share children
         [NativeDisableParallelForRestriction]
         public BufferFromEntity<Child> tilesFromEntity;
 
         [ReadOnly]
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int index, ref Piece c0)
+        public void Execute(Entity entity, int index, [ReadOnly] ref Piece piece)
         {
-            commandBuffer.RemoveComponent(index, entity, typeof(PieceTileCountChanged));
 
             var tiles = tilesFromEntity[entity];
 
@@ -96,6 +92,10 @@ public class LineClearSystem : JobComponentSystem
                 if (tiles[i].Value == Entity.Null)
                     tiles.RemoveAt(i);
             }
+
+            //Destroy empty pieces
+            if (tiles.Length == 0)
+                commandBuffer.DestroyEntity(index, entity);
         }
     };
 
