@@ -11,6 +11,11 @@ public static class BoardUtility
     public static readonly int2 BoardSize = new int2(10, 20);
     public static int BoardCellCount { get { return BoardSize.x * BoardSize.y; } }
 
+    public static int IndexFromCellPos(int x, int y )
+    {
+        return IndexFromCellPos(new int3(x, y, 0));
+    }
+
     public static int IndexFromWorldPosition(float3 worldPos)
     {
         int3 cellPos = (int3)math.floor(worldPos);

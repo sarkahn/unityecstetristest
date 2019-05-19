@@ -12,7 +12,7 @@ public class LineClearSystem : JobComponentSystem
     EntityQuery boardQuery_;
     BeginInitializationEntityCommandBufferSystem initCommmandBufferSystem_;
 
-    struct LineClearSystemJob : IJobChunk
+    public struct LineClearSystemJob : IJobChunk
     {
         [ReadOnly]
         public EntityCommandBuffer.Concurrent commandBuffer;
@@ -43,9 +43,15 @@ public class LineClearSystem : JobComponentSystem
                 for( int x = 0; x < BoardUtility.BoardSize.x; ++x )
                 {
                     int idx = y * BoardUtility.BoardSize.x + x;
+
                     if (cells[idx].value == Entity.Null ||
                         activeTileFromEntity.Exists(cells[idx].value))
                     {
+                        if( y == 0 )
+                        {
+                            //Debug.LogFormat("Line {0} is not full so can't be cleared. Pos {1} is empty", y, new int2(x,y));
+                        }
+
                         lineFull = false;
                         break;
                     }
@@ -53,12 +59,11 @@ public class LineClearSystem : JobComponentSystem
 
                 if (lineFull)
                 {
-                    //Debug.LogFormat("Clearing line {0}", y);
+                    Debug.LogFormat("Clearing line {0}", y);
                     linesCleared[y] = true;
                     for (int x = 0; x < BoardUtility.BoardSize.x; ++x)
                     {
-                        int idx = y * BoardUtility.BoardSize.x + x;
-                        var piece = parentFromEntity[cells[idx].value].Value;
+                        int idx = BoardUtility.IndexFromCellPos(x,y);
                         int3 cell = new int3(x, y, 0);
 
                         //Debug.LogFormat("Destroying {0} at cell {1}, idx {2}", cells[idx].value, cell, idx);
@@ -116,6 +121,8 @@ public class LineClearSystem : JobComponentSystem
             float3 piecePos = posFromEntity[piece.Value].Value;
             float3 tilePos = posFromEntity[entity].Value;
 
+            //Debug.Log("MOVING TILES AFTER LINECLEAR");
+
             for (int height = 0; height < linesCleared.Length; ++height)
             {
                 // We can't use localtoworld since our SnapToGrid system
@@ -125,9 +132,13 @@ public class LineClearSystem : JobComponentSystem
                 int yPos = (int)math.floor(worldPos.y);
                 if (linesCleared[height] && yPos >= height)
                 {
+                    var oldPos = tilePos;
                     tilePos.y--;
                     posFromEntity[entity] = new Translation { Value = tilePos };
+
+                    //Debug.LogFormat("Line cleared at {0}, moving {1} down from {2} to {3}", height, entity, oldPos.y, tilePos.y);
                 }
+
             }
         }
     }

@@ -33,15 +33,15 @@ public class PieceComponent : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
 
-        //dstManager.AddComponentData(entity, new Piece { pieceType = pieceType_, snapOffset = spawnOffset_ });
-        //var t = transform;
+        dstManager.AddComponentData(entity, new Piece { pieceType = pieceType_, snapOffset = spawnOffset_ });
+        var t = transform;
         
-        //for( int i = 0; i < t.childCount; ++i )
-        //{
-        //    var e = conversionSystem.GetPrimaryEntity(t.GetChild(i).gameObject);
-        //    dstManager.AddComponent(e, typeof(PieceTile));
+        for( int i = 0; i < t.childCount; ++i )
+        {
+            var e = conversionSystem.GetPrimaryEntity(t.GetChild(i).gameObject);
+            dstManager.AddComponent(e, typeof(PieceTile));
             
-        //}
+        }
         
     }
     

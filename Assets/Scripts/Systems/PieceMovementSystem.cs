@@ -30,7 +30,6 @@ public class PieceMovementSystem : JobComponentSystem
         public ComponentDataFromEntity<Translation> posFromEntity;
         
         [NativeDisableParallelForRestriction]
-        [DeallocateOnJobCompletion]
         public NativeArray<BoardCell> board;
 
         [ReadOnly]
@@ -58,7 +57,7 @@ public class PieceMovementSystem : JobComponentSystem
             int3 vel = inputVel;
 
             // Uncomment to disable gravity
-            vel.y = 0;
+            //vel.y = 0;
             
             for (int i = 0; i < children.Length; ++i)
             {
@@ -200,6 +199,12 @@ public class PieceMovementSystem : JobComponentSystem
             }.Schedule(this, JobHandle.CombineDependencies(getBoardJob, job));
 
             initCommandBufferSystem_.AddJobHandleForProducer(job);
+
+            job = new UpdateBoardJob
+            {
+                newValues = board,
+                cellType = GetArchetypeChunkComponentType<BoardCell>(false),
+            }.Schedule(boardQuery_, job);
         }
         
         return job;

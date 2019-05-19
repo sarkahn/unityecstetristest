@@ -4,15 +4,15 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
-[UpdateAfter(typeof(InitBoardSystem))]
 public class InitHeightMapSystem : JobComponentSystem
 {
     EntityQuery heightMapQuery_;
     
     [BurstCompile]
     [RequireComponentTag(typeof(Child))]
-    [ExcludeComponent(typeof(ActivePiece), typeof(SnapToHeightmap))]
+    [ExcludeComponent(typeof(ActivePiece), typeof(SnapToHeightmap), typeof(GhostPiece))]
     struct GetHeightmapDataJob : IJobForEachWithEntity<Piece>
     {
         [NativeDisableParallelForRestriction]
@@ -30,8 +30,22 @@ public class InitHeightMapSystem : JobComponentSystem
             var tiles = tilesFromEntity[entity];
             for( int i = 0; i < tiles.Length; ++i )
             {
+
+                if (!posFromEntity.Exists(tiles[i].Value))
+                {
+                    //Debug.LogFormat("Tile {0} in pice {1} has no translation", tiles[i].Value, entity);
+                    //throw new System.Exception("Tile without translation");
+                    continue;
+                }
+
                 float3 tilePos = posFromEntity[tiles[i].Value].Value;
+
+
                 int3 cell = BoardUtility.CellFromWorldPos(piecePos + tilePos);
+
+                if (cell.x < 0 || cell.y >= heightMap.Length)
+                    return;
+
                 heightMap[cell.x] = math.max(heightMap[cell.x], cell.y + 1);
             }
         }

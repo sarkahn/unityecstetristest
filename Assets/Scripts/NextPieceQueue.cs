@@ -32,6 +32,12 @@ public class NextPieceQueue : MonoBehaviour
 
     Queue<GameObject> pieceQueue_ = new Queue<GameObject>();
 
+    [SerializeField]
+    bool lockPiece_ = false;
+
+    [SerializeField]
+    PieceType lockedPieceType_;
+
 
     [ContextMenu("PrintPositions")]
     void PrintPositions()
@@ -105,7 +111,16 @@ public class NextPieceQueue : MonoBehaviour
     void FillShuffleBag()
     {
         for (int i = 0; i < piecePrefabs_.Count; ++i)
-            shuffleBag_.Add(i);
+        {
+            if( lockPiece_ )
+            {
+                shuffleBag_.Add((int)lockedPieceType_);
+            }
+            else
+            {
+                shuffleBag_.Add(i);
+            }
+        }
 
         for (int i = shuffleBag_.Count - 1; i > 0; --i)
         {

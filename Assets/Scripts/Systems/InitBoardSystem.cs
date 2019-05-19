@@ -7,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 using static Unity.Mathematics.math;
 
-//[DisableAutoCreation]
 public class InitBoardSystem : JobComponentSystem
 {
     EntityQuery tilesQuery_;
@@ -32,6 +31,8 @@ public class InitBoardSystem : JobComponentSystem
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             var cells = chunk.GetNativeArray(cellsType);
+
+            //Debug.Log("INITIALIZING BOARD");
 
             // Clear the board
             for (int i = 0; i < cells.Length; ++i)

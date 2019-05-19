@@ -15,11 +15,11 @@ public class ActivePieceComponent : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponent(entity, typeof(ActivePiece));
 
-        //var t = transform;
-        //for( int i = 0; i < t.childCount; ++i )
-        //{
-        //    var childEntity = conversionSystem.GetPrimaryEntity(t.GetChild(i));
-        //    dstManager.AddComponent(childEntity, typeof(ActiveTile));
-        //}
+        var t = transform;
+        for (int i = 0; i < t.childCount; ++i)
+        {
+            var childEntity = conversionSystem.GetPrimaryEntity(t.GetChild(i));
+            dstManager.AddComponent(childEntity, typeof(ActiveTile));
+        }
     }
 }
