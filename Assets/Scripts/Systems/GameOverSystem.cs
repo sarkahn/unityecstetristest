@@ -19,9 +19,9 @@ public class GameOverSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        //foreach (var system in World.Systems)
-        //    system.Enabled = false;
+        foreach (var system in World.Systems)
+            system.Enabled = false;
 
-        //SceneManager.LoadSceneAsync("GameOverScene", LoadSceneMode.Additive);
+        SceneManager.LoadSceneAsync("GameOverScene", LoadSceneMode.Additive);
     }
 }

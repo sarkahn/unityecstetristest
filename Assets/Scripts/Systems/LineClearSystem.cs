@@ -23,7 +23,7 @@ public class LineClearSystem : JobComponentSystem
         [ReadOnly]
         public ComponentDataFromEntity<ActiveTile> activeTileFromEntity;
 
-        // If our board was big enough to cross chunks this would break
+        // If our board was big enough to cross chunks this could be bad
         [NativeDisableParallelForRestriction]
         public NativeArray<bool> linesCleared;
         
@@ -59,7 +59,7 @@ public class LineClearSystem : JobComponentSystem
 
                 if (lineFull)
                 {
-                    Debug.LogFormat("Clearing line {0}", y);
+                    //Debug.LogFormat("Clearing line {0}", y);
                     linesCleared[y] = true;
                     for (int x = 0; x < BoardUtility.BoardSize.x; ++x)
                     {
@@ -143,6 +143,7 @@ public class LineClearSystem : JobComponentSystem
         }
     }
     
+    // Update the "Lines Cleared" UI
     struct NotifyUIJob : IJob
     {
         [ReadOnly]

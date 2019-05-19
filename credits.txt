@@ -1,0 +1,10 @@
+Board edges by Janna:
+https://opengameart.org/content/sleek-bars
+
+Tile normal map from Cubiquity (David Williams):
+https://bitbucket.org/volumesoffun/cubiquity-for-unity3d/src/master/
+
+Font is "Visitor" by Brian Kent:
+https://www.dafont.com/visitor.font
+
+And huge thanks to all the helpful people on the unity ECS forums

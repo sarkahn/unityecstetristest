@@ -75,7 +75,7 @@ public class NextPieceQueue : MonoBehaviour
 
         p = math.floor(p) + new float3(0.5f, 0.5f, 0) + spawnOffset;
         nextPiece.transform.position = p;
-
+        
         nextPiece.AddComponent<SpawnedPieceComponent>();
         nextPiece.AddComponent<ConvertToEntity>();
 

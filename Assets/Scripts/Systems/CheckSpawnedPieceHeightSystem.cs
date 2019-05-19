@@ -42,7 +42,7 @@ public class CheckSpawnedPieceHeightSystem : JobComponentSystem
 
                 if (cell.y <= heightMap[cell.x].value)
                 {
-                    //Debug.LogFormat("Cell {0} one piece {1} is higher than heightmap {2}", cell, entity, heightMap[cell.x].value);
+                    Debug.LogFormat("Cell {0} one piece {1} is higher than heightmap {2}", cell, entity, heightMap[cell.x].value);
                     commandBuffer.AddComponent(index, entity, new SnapToHeightmap());
                     return;
                 }

@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameOverScene.unity
     guid: f8806ce6ef9c786479c0c1cfddcb09a8
+  - enabled: 1
+    path: Assets/Scenes/QuitGameScene.unity
+    guid: d1b7152e1ccb3f346b1f3cb1cbdf6f76
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 4b875a97cf64fc04db75b8fe7db6b12a,
       type: 2}

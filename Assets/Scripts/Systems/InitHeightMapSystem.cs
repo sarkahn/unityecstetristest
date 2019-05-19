@@ -10,7 +10,7 @@ public class InitHeightMapSystem : JobComponentSystem
 {
     EntityQuery heightMapQuery_;
     
-    [BurstCompile]
+    //[BurstCompile]
     [RequireComponentTag(typeof(Child))]
     [ExcludeComponent(typeof(ActivePiece), typeof(SnapToHeightmap), typeof(GhostPiece))]
     struct GetHeightmapDataJob : IJobForEachWithEntity<Piece>
@@ -34,7 +34,7 @@ public class InitHeightMapSystem : JobComponentSystem
                 if (!posFromEntity.Exists(tiles[i].Value))
                 {
                     //Debug.LogFormat("Tile {0} in pice {1} has no translation", tiles[i].Value, entity);
-                    //throw new System.Exception("Tile without translation");
+                    //throw new System.Exception("Tile without translation...how is this possible?");
                     continue;
                 }
 
@@ -43,7 +43,7 @@ public class InitHeightMapSystem : JobComponentSystem
 
                 int3 cell = BoardUtility.CellFromWorldPos(piecePos + tilePos);
 
-                if (cell.x < 0 || cell.y >= heightMap.Length)
+                if (cell.x < 0 || cell.x >= heightMap.Length)
                     return;
 
                 heightMap[cell.x] = math.max(heightMap[cell.x], cell.y + 1);
@@ -62,6 +62,8 @@ public class InitHeightMapSystem : JobComponentSystem
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
+            //Debug.LogFormat("Writing heightmap, From cell 3: {0}, {1}, {2}, {3}",
+            //    heightMap[3], heightMap[4], heightMap[5], heightMap[6]);
             var cells = chunk.GetNativeArray(cellType);
             for (int i = 0; i < cells.Length; ++i)
                 cells[i] = heightMap[i];

@@ -29,19 +29,32 @@ public class SnapToHeightmapSystem : JobComponentSystem
         public ComponentDataFromEntity<Translation> posFromEntity;
 
         [ReadOnly]
+        public ComponentDataFromEntity<ActivePiece> activePieceFromEntity;
+
+        [ReadOnly]
         public BufferFromEntity<Child> tilesFromEntity;
 
         public void Execute(Entity entity, int index, ref Piece piece)
         {
             commandBuffer.RemoveComponent<SnapToHeightmap>(index, entity);
 
+            var children = tilesFromEntity[entity];
+
+            if ( activePieceFromEntity.Exists(entity) )
+            {
+                commandBuffer.AddComponent(index, entity, new SpawnNextPiece());
+                commandBuffer.AddComponent(index, entity, new DroppedPiece());
+                commandBuffer.RemoveComponent<ActivePiece>(index, entity);
+
+                for (int j = 0; j < children.Length; ++j)
+                    commandBuffer.RemoveComponent<ActiveTile>(index, children[j].Value);
+            }
             
             float3 piecePos = posFromEntity[entity].Value;
 
             int highestPoint = -99;
             int lowestCell = 99;
 
-            var children = tilesFromEntity[entity];
             for( int i = 0; i < children.Length; ++i )
             {
                 float3 tilePos = posFromEntity[children[i].Value].Value;
@@ -80,6 +93,7 @@ public class SnapToHeightmapSystem : JobComponentSystem
             heightMap = heightMap,
             tilesFromEntity = GetBufferFromEntity<Child>(true),
             posFromEntity = GetComponentDataFromEntity<Translation>(false),
+            activePieceFromEntity = GetComponentDataFromEntity<ActivePiece>(true),
         }.Schedule(this, job);
 
         return job;
